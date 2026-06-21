@@ -1,0 +1,4413 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>背诵完形</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eeecea;
+      --panel: #fbf3e7;
+      --panel-soft: #fffdf9;
+      --panel-tint: #f4eadb;
+      --ink: #352c27;
+      --subtle: #8b7b6d;
+      --line: rgba(185, 156, 126, 0.13);
+      --line-strong: rgba(173, 141, 108, 0.2);
+      --accent: #f0d1a5;
+      --accent-strong: #e9bd83;
+      --accent-ink: #4c3829;
+      --green: #b8dea5;
+      --gold: #dcc37a;
+      --red: #f4b7ba;
+      --red-ink: #704246;
+      --core: #f6c0c6;
+      --broad: #d7c8ef;
+      --plain: #cfe0dd;
+      --important: #df7078;
+      --keep-bg: #eef6e9;
+      --keep-line: #c6dfb6;
+      --focus: 0 0 0 4px rgba(240, 209, 165, 0.42), 0 8px 24px rgba(166, 138, 110, 0.08);
+      --shadow: 0 26px 56px rgba(149, 122, 96, 0.18), 0 8px 18px rgba(149, 122, 96, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.86);
+      --shadow-soft: 0 14px 34px rgba(164, 133, 102, 0.14), inset 0 1px 2px rgba(255, 255, 255, 0.72);
+      --shadow-pressed: inset 0 3px 10px rgba(145, 119, 94, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      --motion: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      font-family: Inter, "Segoe UI", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    }
+
+    body[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #1d2128;
+      --panel: #2b2e38;
+      --panel-soft: #353946;
+      --panel-tint: #242833;
+      --ink: #f1ece4;
+      --subtle: #c0b6aa;
+      --line: rgba(223, 205, 184, 0.09);
+      --line-strong: rgba(223, 205, 184, 0.14);
+      --accent: #d8b689;
+      --accent-strong: #e6c692;
+      --accent-ink: #2b2118;
+      --green: #99c88f;
+      --gold: #d0b667;
+      --red: #df9aa0;
+      --red-ink: #352326;
+      --core: #c98291;
+      --broad: #9d8abe;
+      --plain: #779391;
+      --important: #f08b92;
+      --keep-bg: #334436;
+      --keep-line: #587251;
+      --focus: 0 0 0 4px rgba(216, 182, 137, 0.3), 0 10px 26px rgba(18, 21, 29, 0.18);
+      --shadow: 0 28px 60px rgba(18, 21, 29, 0.36), 0 8px 22px rgba(18, 21, 29, 0.22), inset 0 1px 3px rgba(255, 255, 255, 0.08);
+      --shadow-soft: 0 16px 34px rgba(18, 21, 29, 0.24), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+      --shadow-pressed: inset 0 3px 10px rgba(18, 21, 29, 0.22);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      min-height: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 8%, rgba(255, 247, 235, 0.72), transparent 28%),
+        radial-gradient(circle at 84% 6%, rgba(240, 209, 165, 0.36), transparent 24%),
+        linear-gradient(180deg, rgba(247, 240, 230, 0.92), rgba(238, 236, 234, 0) 330px),
+        var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    body[data-theme="dark"] {
+      background:
+        radial-gradient(circle at 14% 8%, rgba(102, 92, 118, 0.28), transparent 30%),
+        radial-gradient(circle at 86% 8%, rgba(216, 182, 137, 0.18), transparent 26%),
+        linear-gradient(180deg, rgba(46, 50, 61, 0.85), rgba(29, 33, 40, 0) 320px),
+        var(--bg);
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .shell {
+      width: min(1220px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 28px 0 34px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .page-switch {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      width: 342px;
+      padding: 5px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.76);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(16px);
+    }
+
+    body[data-theme="dark"] .page-switch,
+    body[data-theme="dark"] .status,
+    body[data-theme="dark"] .api-mode,
+    body[data-theme="dark"] .font-control,
+    body[data-theme="dark"] .toast {
+      background: rgba(53, 57, 70, 0.84);
+    }
+
+    .page-switch::before {
+      content: "";
+      position: absolute;
+      inset: 5px auto 5px 5px;
+      width: calc((100% - 10px) / 3);
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f5dcb7, var(--accent));
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.72), 0 8px 18px rgba(188, 148, 103, 0.22);
+      transition: transform var(--motion);
+      z-index: 0;
+    }
+
+    .page-switch[data-page="config"]::before { transform: translateX(100%); }
+    .page-switch[data-page="recite"]::before { transform: translateX(200%); }
+
+    .page-switch button {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      height: 38px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--ink);
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      user-select: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: color var(--motion), transform var(--motion);
+    }
+
+    .page-switch button.active {
+      color: var(--accent-ink);
+      font-weight: 650;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .theme-toggle {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 999px;
+      color: #e79a32;
+      background:
+        radial-gradient(circle at 36% 30%, rgba(255, 247, 205, 0.95), rgba(255, 203, 85, 0.82) 45%, rgba(241, 144, 64, 0.78) 74%),
+        #fff9ee;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      user-select: none;
+      box-shadow: 0 10px 22px rgba(196, 143, 74, 0.23), inset 0 2px 3px rgba(255, 255, 255, 0.9);
+      transition: transform var(--motion), box-shadow var(--motion);
+    }
+
+    .theme-toggle::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      right: 6px;
+      width: 15px;
+      height: 15px;
+      background: #ffb533;
+      clip-path: polygon(50% 0%, 61% 31%, 95% 18%, 76% 50%, 100% 77%, 65% 70%, 50% 100%, 35% 70%, 0% 77%, 24% 50%, 5% 18%, 39% 31%);
+      filter: drop-shadow(0 2px 3px rgba(210, 132, 48, 0.24));
+    }
+
+    body[data-theme="dark"] .theme-toggle {
+      color: #f4d499;
+      background:
+        radial-gradient(circle at 36% 30%, rgba(249, 226, 181, 0.92), rgba(211, 165, 101, 0.8) 44%, rgba(84, 78, 98, 0.8) 76%),
+        var(--panel-soft);
+    }
+
+    .theme-toggle svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.2;
+      filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.55));
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      min-height: 44px;
+      min-width: min(332px, 42vw);
+      padding: 10px 18px 10px 12px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--subtle);
+      font-size: 15px;
+      font-weight: 650;
+      text-align: left;
+      background: rgba(255, 253, 248, 0.82);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.82), 0 10px 24px rgba(164, 133, 102, 0.08);
+      position: relative;
+      overflow: hidden;
+      transition: background var(--motion), box-shadow var(--motion);
+      backdrop-filter: blur(14px);
+    }
+
+    .status::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: var(--progress, 0%);
+      background: color-mix(in srgb, var(--accent) 24%, transparent);
+      opacity: 0;
+      transition: width 220ms ease, opacity var(--motion);
+      z-index: 0;
+    }
+
+    .status[data-busy="true"] {
+      color: var(--ink);
+      background: rgba(255, 249, 240, 0.92);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .status[data-busy="true"]::before { opacity: 1; }
+    .status > * { position: relative; z-index: 1; }
+
+    .status-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: var(--green);
+      flex: 0 0 auto;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.78), 0 5px 12px rgba(114, 164, 97, 0.18);
+    }
+
+    .status[data-tone="warn"] .status-dot { background: var(--gold); }
+    .status[data-tone="error"] .status-dot { background: var(--red); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: minmax(340px, 0.96fr) minmax(340px, 1.04fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .panel {
+      min-width: 0;
+      background: var(--panel);
+      border: 0;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 24px 30px 10px;
+      border-bottom: 0;
+      background: transparent;
+    }
+
+    .panel-head.stack {
+      align-items: flex-start;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 8px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 27px;
+      line-height: 1.2;
+      letter-spacing: 0;
+      font-weight: 760;
+    }
+
+    .hint {
+      color: var(--subtle);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .panel-body { padding: 14px 30px 30px; }
+
+    label {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+      color: var(--ink);
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 450;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      border: 0;
+      border-radius: 17px;
+      color: var(--ink);
+      background: var(--panel-soft);
+      outline: none;
+      box-shadow: var(--shadow-pressed);
+      transition: box-shadow var(--motion), background var(--motion), transform var(--motion);
+    }
+
+    textarea:focus, input:focus, select:focus { box-shadow: var(--focus); }
+
+    textarea {
+      min-height: 330px;
+      padding: 18px 20px;
+      resize: vertical;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    input, select {
+      height: 48px;
+      padding: 0 18px;
+      font-size: 16px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .key-field {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 50px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .api-mode {
+      --active-index: 0;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      padding: 5px;
+      margin-bottom: 22px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.78);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .api-mode::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      top: 5px;
+      bottom: 5px;
+      left: 5px;
+      width: calc(50% - 5px);
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f5dcb8, var(--accent));
+      transform: translateX(calc(var(--active-index) * 100%));
+      transition: transform var(--motion);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.72), 0 8px 18px rgba(188, 148, 103, 0.2);
+    }
+
+    .api-mode button {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      height: 42px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--ink);
+      background: transparent;
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: color var(--motion), transform var(--motion);
+    }
+
+    .api-mode button.active {
+      color: var(--accent-ink);
+      font-weight: 650;
+    }
+
+    .api-custom-fields[hidden] { display: none; }
+
+    .icon-button {
+      height: 48px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--ink);
+      background: linear-gradient(180deg, #fffdf9, #f5eadb);
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      user-select: none;
+      box-shadow: var(--shadow-soft);
+      transition: transform var(--motion), box-shadow var(--motion);
+    }
+
+    body[data-theme="dark"] .icon-button { background: linear-gradient(180deg, #3d414e, #303441); }
+
+    .icon-button svg {
+      width: 19px;
+      height: 19px;
+      stroke-width: 2;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn {
+      min-width: 0;
+      min-height: 48px;
+      padding: 0 24px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--accent-ink);
+      background: linear-gradient(180deg, #f5dcb8, var(--accent));
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 650;
+      box-shadow: 0 12px 24px rgba(188, 148, 103, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.78);
+      transition: transform var(--motion), box-shadow var(--motion), filter var(--motion);
+    }
+
+    .btn:hover, .icon-button:hover, .theme-toggle:hover { filter: saturate(1.04) brightness(1.01); }
+
+    .btn.secondary {
+      color: var(--ink);
+      background: linear-gradient(180deg, #fffdf8, #eee7de);
+      box-shadow: 0 10px 22px rgba(142, 120, 98, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.82);
+    }
+
+    body[data-theme="dark"] .btn.secondary { background: linear-gradient(180deg, #404552, #343844); }
+
+    .btn.subtle {
+      color: var(--ink);
+      background: #e6eeed;
+      box-shadow: 0 10px 22px rgba(113, 134, 128, 0.13), inset 0 1px 2px rgba(255, 255, 255, 0.76);
+    }
+
+    body[data-theme="dark"] .btn.subtle { background: #3a4548; }
+
+    .btn.danger {
+      color: var(--red-ink);
+      background: linear-gradient(180deg, #facdd0, var(--red));
+      box-shadow: 0 12px 24px rgba(206, 116, 123, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.72);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn:not(:disabled):active,
+    .icon-button:active,
+    .theme-toggle:active,
+    .page-switch button:active,
+    .api-mode button:active,
+    .mode-tabs button:active {
+      transform: scale(0.97);
+    }
+
+    .marked-editor {
+      min-height: 430px;
+      max-height: 580px;
+      overflow: auto;
+      padding: 18px 20px 84px;
+      border: 0;
+      border-radius: 18px;
+      background: var(--panel-soft);
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+      font: 13px/1.6 Consolas, "Courier New", monospace;
+      outline: none;
+      box-shadow: var(--shadow-pressed);
+      transition: box-shadow var(--motion), background var(--motion);
+    }
+
+    .marked-editor:focus { box-shadow: var(--focus); }
+
+    .protocol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .result-protocol {
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .protocol-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: 14px;
+      background: rgba(255, 253, 248, 0.62);
+      color: var(--subtle);
+      font-size: 12px;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.78);
+    }
+
+    .result-protocol .protocol-item {
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 11px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .result-protocol .swatch {
+      width: 18px;
+      height: 11px;
+    }
+
+    body[data-theme="dark"] .protocol-item { background: rgba(53, 57, 70, 0.62); }
+
+    .swatch {
+      width: 22px;
+      height: 14px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+      background: var(--plain);
+    }
+
+    .swatch.keep {
+      background: var(--keep-bg);
+      border: 1px solid var(--keep-line);
+    }
+
+    .swatch.core { background: var(--core); }
+    .swatch.broad { background: var(--broad); }
+
+    .cards-wrap {
+      width: min(520px, 100%);
+      margin: 0 auto;
+    }
+
+    .cards-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .cache-card {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 50px 50px;
+      gap: 10px;
+      align-items: stretch;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.78);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.82), 0 10px 22px rgba(142, 120, 98, 0.08);
+    }
+
+    body[data-theme="dark"] .cache-card {
+      background: rgba(53, 57, 70, 0.72);
+    }
+
+    .cache-card-main {
+      min-width: 0;
+      display: grid;
+      align-content: center;
+      gap: 7px;
+    }
+
+    .cache-title {
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+    }
+
+    .cache-meta {
+      color: var(--subtle);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .cache-card .btn {
+      min-height: 0;
+      height: 100%;
+      min-width: 0;
+      padding: 0 8px;
+      border-radius: 9px;
+      white-space: normal;
+      line-height: 1.25;
+    }
+
+    .cache-card .btn.danger {
+      writing-mode: vertical-rl;
+      letter-spacing: 0.05em;
+    }
+
+    .cards-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .cards-actions .btn.primary-wide {
+      grid-column: 1 / -1;
+    }
+
+    .cards-empty {
+      margin-top: 10px;
+      padding: 28px 18px;
+      border-radius: 18px;
+      color: var(--subtle);
+      text-align: center;
+      line-height: 1.6;
+      background: rgba(255, 253, 248, 0.58);
+      box-shadow: var(--shadow-pressed);
+    }
+
+    .recite-panel {
+      min-height: calc(100vh - 118px);
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    .recite-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 20px 28px 10px;
+      border-bottom: 0;
+      background: transparent;
+    }
+
+    .mode-tabs {
+      --active-index: 0;
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(64px, 1fr));
+      gap: 5px;
+      width: min(520px, calc(100% - 44px));
+      margin: 0;
+      padding: 5px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.86);
+      box-shadow: 0 18px 38px rgba(146, 119, 92, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(16px);
+      transform: translateX(-50%);
+      z-index: 6;
+    }
+
+    body[data-theme="dark"] .mode-tabs {
+      background: rgba(55, 58, 70, 0.86);
+      box-shadow: 0 18px 38px rgba(18, 21, 29, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+    }
+
+    body[data-theme="dark"] .mode-tabs::before { background: var(--accent); }
+    body[data-theme="dark"] .mode-tabs button.active { color: var(--accent-ink); }
+
+    .mode-tabs::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      top: 5px;
+      bottom: 5px;
+      left: 5px;
+      width: calc((100% - 10px) / 5);
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f5dcb8, var(--accent));
+      transform: translateX(calc(var(--active-index) * 100%));
+      transition: transform var(--motion);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.72), 0 8px 18px rgba(188, 148, 103, 0.18);
+    }
+
+    .mode-tabs button {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      height: 38px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--ink);
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      user-select: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: color var(--motion), transform var(--motion);
+    }
+
+    .mode-tabs button.active {
+      color: var(--accent-ink);
+      font-weight: 650;
+    }
+
+    .recite-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .font-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 250px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.78);
+      color: var(--subtle);
+      font-size: 15px;
+      font-weight: 650;
+      user-select: none;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.76), 0 10px 22px rgba(142, 120, 98, 0.09);
+    }
+
+    .font-control input {
+      width: 160px;
+      height: 18px;
+      padding: 0;
+      accent-color: var(--accent);
+      box-shadow: none;
+    }
+
+    .reader {
+      flex: 1;
+      padding: 30px 30px 116px;
+      font-size: var(--reader-font-size, 21px);
+      line-height: 2.12;
+      word-break: break-word;
+      white-space: pre-wrap;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
+      overscroll-behavior: auto;
+      cursor: default;
+      min-height: 430px;
+    }
+
+    .unit {
+      position: relative;
+      display: inline-block;
+      border-radius: 10px;
+      min-width: 0.82em;
+      margin: 0 0.02em;
+      padding: 0 0.12em;
+      line-height: 1.32;
+      transition: color var(--motion), background var(--motion), box-shadow var(--motion), transform var(--motion);
+      -webkit-user-select: none;
+      user-select: none;
+      vertical-align: baseline;
+    }
+
+    .unit.keep {
+      color: color-mix(in srgb, var(--green) 65%, var(--ink));
+      background: var(--keep-bg);
+      box-shadow: 0 0 0 1px rgba(40, 116, 95, 0.2) inset;
+      cursor: default;
+    }
+
+    .unit.space {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .unit.important {
+      color: var(--important);
+      box-shadow: 0 -0.18em 0 rgba(232, 93, 98, 0.2) inset;
+      font-weight: 720;
+    }
+
+    .unit.maskable { cursor: pointer; }
+
+    .unit.hidden {
+      color: transparent;
+      text-shadow: none;
+      background: var(--plain);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.38), 0 5px 12px rgba(109, 91, 76, 0.08);
+    }
+
+    .unit.hidden.core { background: var(--core); }
+    .unit.hidden.broad { background: var(--broad); }
+    .unit.hidden.important { background: var(--important); }
+
+    .unit.revealed {
+      color: var(--ink);
+      background: rgba(246, 199, 84, 0.24);
+      box-shadow: 0 0 0 1px rgba(166, 106, 18, 0.18) inset;
+    }
+
+    .unit.manual-hidden:not(.hidden) { background: rgba(70, 83, 99, 0.08); }
+
+    .empty-reader {
+      display: grid;
+      place-items: center;
+      min-height: 320px;
+      color: var(--subtle);
+      text-align: center;
+      line-height: 1.6;
+      padding: 28px;
+      background: rgba(255, 253, 248, 0.58);
+      border-radius: 22px;
+      box-shadow: var(--shadow-pressed);
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      max-width: min(380px, calc(100vw - 32px));
+      padding: 13px 18px;
+      border-radius: 999px;
+      color: var(--ink);
+      background: rgba(255, 253, 248, 0.9);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity var(--motion), transform var(--motion);
+      z-index: 20;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 920px) {
+      .config-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      textarea { min-height: 250px; }
+      .marked-editor { min-height: 300px; }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        width: min(100vw - 12px, 1220px);
+        padding-top: 12px;
+        overflow-x: clip;
+      }
+
+      .topbar, .recite-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .page-switch { width: 100%; }
+      .page-switch button {
+        height: 34px;
+        font-size: 13px;
+      }
+
+      .top-actions {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        align-items: center;
+        width: 100%;
+      }
+
+      .status {
+        min-width: 0;
+        width: 100%;
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .panel { border-radius: 26px; }
+      .panel-head { padding: 22px 22px 8px; }
+      .panel-title { font-size: 25px; }
+      .panel-body { padding: 12px 22px 24px; }
+      label { font-size: 18px; }
+
+      .row { grid-template-columns: 1fr; }
+
+      .protocol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .mode-tabs {
+        width: calc(100% - 24px);
+        min-width: 0;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        bottom: 12px;
+        margin: 0;
+      }
+
+      .recite-toolbar {
+        padding: 18px 18px 8px;
+        overflow: visible;
+      }
+
+      .recite-actions { width: 100%; }
+
+      .font-control {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .font-control input {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .recite-actions .btn {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+        min-height: 44px;
+        padding-inline: 14px;
+      }
+
+      .reader {
+        padding: 18px 18px 104px;
+        font-size: var(--reader-font-size, 18px);
+        line-height: 2.05;
+      }
+
+      .button-row .btn {
+        flex: 1 1 100%;
+        min-width: 0;
+      }
+
+      .cards-wrap {
+        width: 100%;
+      }
+
+      .cache-card {
+        grid-template-columns: 42px minmax(0, 1fr) 42px 42px;
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .cache-title {
+        font-size: 15px;
+      }
+
+      .cache-card .btn {
+        font-size: 13px;
+        padding: 0 6px;
+      }
+
+      .cards-actions {
+        gap: 12px;
+        margin-top: 28px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .top-actions {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        align-items: center;
+      }
+
+      .theme-toggle { flex: 0 0 48px; }
+
+      .mode-tabs {
+        width: calc(100% - 18px);
+        padding: 4px;
+        gap: 2px;
+      }
+
+      .mode-tabs::before {
+        top: 4px;
+        bottom: 4px;
+        left: 4px;
+        width: calc((100% - 8px) / 5);
+      }
+
+      .mode-tabs button {
+        height: 36px;
+        font-size: 12px;
+        padding: 0 2px;
+      }
+
+      .button-row, .recite-actions { gap: 10px; }
+      .button-row .btn { flex-basis: 100%; }
+      .recite-actions .btn {
+        flex: 1 1 calc(50% - 5px);
+        min-height: 42px;
+      }
+
+      .cache-card {
+        grid-template-columns: 40px minmax(0, 1fr) 40px 40px;
+      }
+
+      .cards-actions .btn {
+        min-height: 42px;
+        padding-inline: 12px;
+      }
+    }
+
+  
+
+    /* === Liquid Glass targeted refinement: top switch, action buttons, recite controls === */
+    :root {
+      --glass-bg: rgba(255, 253, 248, 0.54);
+      --glass-bg-strong: rgba(255, 253, 248, 0.68);
+      --glass-stroke: rgba(255, 255, 255, 0.62);
+      --glass-shadow: 0 16px 34px rgba(126, 102, 78, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.72), inset 0 -1px 0 rgba(116, 93, 70, 0.06);
+      --glass-shadow-soft: 0 8px 18px rgba(126, 102, 78, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.70);
+      --glass-blur: 14px;
+      --glass-blur-soft: 10px;
+      --topbar-haze-height: 92px;
+      --bottom-haze-height: 108px;
+    }
+
+    body[data-theme="dark"] {
+      --glass-bg: rgba(54, 58, 70, 0.48);
+      --glass-bg-strong: rgba(57, 62, 76, 0.66);
+      --glass-stroke: rgba(255, 255, 255, 0.11);
+      --glass-shadow: 0 16px 36px rgba(9, 12, 18, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+      --glass-shadow-soft: 0 8px 20px rgba(9, 12, 18, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      margin: -10px 0 18px;
+      padding: 10px 0 12px;
+      overflow: visible;
+      isolation: isolate;
+      transform: translateZ(0);
+    }
+
+    .topbar::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -28px;
+      width: 100vw;
+      height: var(--topbar-haze-height);
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(238, 236, 234, 0.42) 0%, rgba(238, 236, 234, 0.22) 44%, rgba(238, 236, 234, 0) 100%);
+      -webkit-backdrop-filter: blur(18px) saturate(1.08);
+      backdrop-filter: blur(18px) saturate(1.08);
+      -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.82) 48%, rgba(0, 0, 0, 0) 100%);
+      mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.82) 48%, rgba(0, 0, 0, 0) 100%);
+      contain: paint;
+    }
+
+    body[data-theme="dark"] .topbar::before {
+      background: linear-gradient(180deg, rgba(29, 33, 40, 0.58) 0%, rgba(29, 33, 40, 0.28) 48%, rgba(29, 33, 40, 0) 100%);
+    }
+
+    .page-switch,
+    .api-mode,
+    .font-control,
+    .mode-tabs,
+    .btn,
+    .icon-button {
+      border: 1px solid var(--glass-stroke);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0.12) 48%, rgba(255, 255, 255, 0.32)),
+        var(--glass-bg);
+      box-shadow: var(--glass-shadow-soft);
+      -webkit-backdrop-filter: blur(var(--glass-blur-soft)) saturate(1.24);
+      backdrop-filter: blur(var(--glass-blur-soft)) saturate(1.24);
+    }
+
+    .page-switch,
+    .api-mode,
+    .mode-tabs {
+      overflow: visible;
+      contain: layout paint style;
+    }
+
+    .page-switch {
+      box-shadow: var(--glass-shadow);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.28);
+      backdrop-filter: blur(var(--glass-blur)) saturate(1.28);
+      isolation: isolate;
+    }
+
+    .page-switch::after,
+    .api-mode::after,
+    .mode-tabs::after {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.74), transparent 34%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.28), transparent 46%, rgba(255, 255, 255, 0.16));
+      mix-blend-mode: screen;
+      opacity: 0.54;
+    }
+
+    body[data-theme="dark"] .page-switch::after,
+    body[data-theme="dark"] .api-mode::after,
+    body[data-theme="dark"] .mode-tabs::after {
+      opacity: 0.22;
+      mix-blend-mode: normal;
+    }
+
+    .page-switch::before,
+    .api-mode::before,
+    .mode-tabs::before {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.12) 18%, rgba(255, 255, 255, 0.10) 100%),
+        linear-gradient(135deg, rgba(245, 220, 184, 0.78), rgba(240, 209, 165, 0.58) 52%, rgba(255, 252, 246, 0.30));
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      box-shadow: 0 10px 20px rgba(176, 135, 91, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.82), inset 0 -1px 0 rgba(127, 96, 68, 0.08);
+      will-change: transform;
+    }
+
+    body[data-theme="dark"] .page-switch::before,
+    body[data-theme="dark"] .api-mode::before,
+    body[data-theme="dark"] .mode-tabs::before {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 18%, rgba(255, 255, 255, 0.04) 100%),
+        linear-gradient(135deg, rgba(230, 198, 146, 0.84), rgba(216, 182, 137, 0.62));
+      border-color: rgba(255, 255, 255, 0.16);
+      box-shadow: 0 10px 22px rgba(10, 13, 19, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+    }
+
+    .page-switch button,
+    .api-mode button,
+    .mode-tabs button {
+      z-index: 2;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.26);
+      transition: transform var(--motion), color var(--motion), opacity var(--motion);
+    }
+
+    body[data-theme="dark"] .page-switch button,
+    body[data-theme="dark"] .api-mode button,
+    body[data-theme="dark"] .mode-tabs button {
+      text-shadow: none;
+    }
+
+    .btn,
+    .icon-button {
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--motion), opacity var(--motion), background-color var(--motion);
+    }
+
+    .btn::before,
+    .icon-button::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(150deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.10) 42%, rgba(255, 255, 255, 0));
+      opacity: 0.72;
+    }
+
+    .btn > *,
+    .icon-button > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn.primary,
+    .btn:not(.secondary):not(.subtle):not(.danger) {
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08) 48%),
+        rgba(240, 209, 165, 0.66);
+    }
+
+    .btn.secondary,
+    .icon-button {
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.10) 48%),
+        rgba(255, 253, 248, 0.58);
+    }
+
+    .btn.subtle {
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08) 48%),
+        rgba(230, 238, 237, 0.62);
+    }
+
+    .btn.danger {
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08) 48%),
+        rgba(244, 183, 186, 0.68);
+    }
+
+    .btn:hover,
+    .icon-button:hover,
+    .theme-toggle:hover {
+      filter: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn:not(:disabled):hover,
+      .icon-button:hover,
+      .theme-toggle:hover,
+      .page-switch button:hover,
+      .api-mode button:hover,
+      .mode-tabs button:hover {
+        transform: translateY(-1px);
+      }
+    }
+
+    .btn:not(:disabled):active,
+    .icon-button:active,
+    .theme-toggle:active,
+    .page-switch button:active,
+    .api-mode button:active,
+    .mode-tabs button:active {
+      transform: scale(0.97);
+    }
+
+    .recite-toolbar {
+      align-items: center;
+    }
+
+    .font-control {
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
+    .mode-tabs {
+      z-index: 28;
+      isolation: isolate;
+      box-shadow: var(--glass-shadow);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.28);
+      backdrop-filter: blur(var(--glass-blur)) saturate(1.28);
+    }
+
+
+    body[data-theme="dark"] .mode-tabs::after {
+      background: linear-gradient(0deg, rgba(29, 33, 40, 0.56) 0%, rgba(29, 33, 40, 0.26) 46%, rgba(29, 33, 40, 0) 100%);
+    }
+
+    .mode-tabs button {
+      background: transparent;
+    }
+
+    @media (min-width: 681px) and (orientation: landscape) {
+      .recite-toolbar {
+        justify-content: flex-end;
+      }
+
+      .recite-actions {
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .recite-actions .btn {
+        flex: 0 0 auto;
+        min-height: 48px;
+        height: 48px;
+      }
+
+      .font-control {
+        width: auto;
+        min-width: 252px;
+        height: 48px;
+      }
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .page-switch,
+      .api-mode,
+      .font-control,
+      .mode-tabs,
+      .btn,
+      .icon-button,
+      .status {
+        background: rgba(255, 253, 248, 0.92);
+      }
+
+      body[data-theme="dark"] .page-switch,
+      body[data-theme="dark"] .api-mode,
+      body[data-theme="dark"] .font-control,
+      body[data-theme="dark"] .mode-tabs,
+      body[data-theme="dark"] .btn,
+      body[data-theme="dark"] .icon-button,
+      body[data-theme="dark"] .status {
+        background: rgba(53, 57, 70, 0.94);
+      }
+
+      .topbar::before,
+      .mode-tabs::after {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      .topbar::before,
+      .mode-tabs::after {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      .page-switch,
+      .api-mode,
+      .font-control,
+      .mode-tabs,
+      .btn,
+      .icon-button,
+      .status {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background: rgba(255, 253, 248, 0.94);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page-switch::before,
+      .api-mode::before,
+      .mode-tabs::before,
+      .btn,
+      .icon-button,
+      .theme-toggle,
+      .page-switch button,
+      .api-mode button,
+      .mode-tabs button {
+        transition-duration: 1ms;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar {
+        margin-top: -6px;
+        padding-top: 8px;
+      }
+
+      .topbar::before {
+        height: 104px;
+      }
+
+      .font-control {
+        margin: 0;
+      }
+    }
+
+
+    /* === V2 fixes: fixed top switch + clipped centered glass tabs + contextual bottom haze === */
+    :root {
+      --topbar-fixed-height: 84px;
+    }
+
+    .shell {
+      padding-top: calc(28px + var(--topbar-fixed-height));
+    }
+
+    .topbar {
+      position: fixed !important;
+      top: 0;
+      left: 50%;
+      width: min(1220px, calc(100vw - 28px));
+      margin: 0 !important;
+      padding: 10px 0 12px;
+      transform: translateX(-50%) translateZ(0);
+      z-index: 100;
+    }
+
+    .topbar::before {
+      top: -18px;
+      z-index: -1;
+    }
+
+    .page-switch,
+    .mode-tabs {
+      overflow: hidden;
+      box-sizing: border-box;
+      -webkit-clip-path: inset(0 round 999px);
+      clip-path: inset(0 round 999px);
+    }
+
+    .page-switch,
+    .mode-tabs,
+    .page-switch::before,
+    .mode-tabs::before,
+    .page-switch::after,
+    .mode-tabs::after {
+      box-sizing: border-box;
+    }
+
+    .page-switch button,
+    .mode-tabs button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      height: 38px;
+      padding: 0 8px;
+      line-height: 1;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-switch::before,
+    .mode-tabs::before {
+      top: 5px;
+      bottom: 5px;
+      height: auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.80), inset 0 -1px 0 rgba(127, 96, 68, 0.08), 0 6px 14px rgba(176, 135, 91, 0.13);
+      max-width: calc(100% - 10px);
+    }
+
+    .page-switch::after,
+    .mode-tabs::after {
+      inset: 1px;
+      z-index: 0;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.68), transparent 34%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), transparent 46%, rgba(255, 255, 255, 0.12));
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+      mix-blend-mode: screen;
+      opacity: 0.50;
+      contain: paint;
+    }
+
+    body[data-theme="dark"] .page-switch::after,
+    body[data-theme="dark"] .mode-tabs::after {
+      mix-blend-mode: normal;
+      opacity: 0.22;
+    }
+
+    .mode-tabs {
+      gap: 0;
+      padding: 5px;
+      width: min(520px, calc(100% - 44px));
+      z-index: 101;
+    }
+
+    .mode-tabs::before {
+      width: calc((100% - 10px) / 5);
+      transform: translateX(calc(var(--active-index) * 100%));
+    }
+
+
+    body[data-theme="dark"] .recite-panel::after {
+      background: linear-gradient(0deg, rgba(29, 33, 40, 0.56) 0%, rgba(29, 33, 40, 0.26) 46%, rgba(29, 33, 40, 0) 100%);
+    }
+
+    @media (min-width: 681px) and (orientation: landscape) {
+      .recite-toolbar {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-end;
+      }
+
+      .recite-actions {
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .font-control,
+      .recite-actions .btn {
+        height: 48px;
+        min-height: 48px;
+      }
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .recite-panel::after {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      .recite-panel::after {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+    }
+
+    @media (max-width: 680px) {
+      :root {
+        --topbar-fixed-height: 138px;
+      }
+
+      .shell {
+        padding-top: calc(12px + var(--topbar-fixed-height));
+      }
+
+      .topbar {
+        width: calc(100vw - 12px);
+        padding-top: 8px;
+        padding-bottom: 10px;
+      }
+
+      .page-switch button {
+        height: 34px;
+        padding: 0 6px;
+      }
+
+      .mode-tabs {
+        width: calc(100% - 24px);
+      }
+    }
+
+    @media (max-width: 430px) {
+      .mode-tabs {
+        width: calc(100% - 18px);
+        padding: 4px;
+      }
+
+      .mode-tabs::before {
+        top: 4px;
+        bottom: 4px;
+        left: 4px;
+        width: calc((100% - 8px) / 5);
+      }
+
+      .mode-tabs button {
+        height: 36px;
+        padding: 0 2px;
+      }
+    }
+
+
+    /* === V3 fixes: only page switch is fixed; API switch alignment; safe bottom tips === */
+    :root {
+      --page-switch-reserve: 64px;
+      --bottom-controls-reserve: 128px;
+    }
+
+    .shell {
+      position: relative;
+      padding-top: calc(22px + var(--page-switch-reserve)) !important;
+    }
+
+    .shell::before {
+      content: "";
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 86px;
+      pointer-events: none;
+      z-index: 95;
+      background: linear-gradient(180deg, rgba(238, 236, 234, 0.40), rgba(238, 236, 234, 0.18) 52%, rgba(238, 236, 234, 0));
+      -webkit-backdrop-filter: blur(14px) saturate(1.06);
+      backdrop-filter: blur(14px) saturate(1.06);
+      -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.82) 56%, rgba(0,0,0,0));
+      mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.82) 56%, rgba(0,0,0,0));
+      contain: paint;
+    }
+
+    body[data-theme="dark"] .shell::before {
+      background: linear-gradient(180deg, rgba(29, 33, 40, 0.56), rgba(29, 33, 40, 0.24) 54%, rgba(29, 33, 40, 0));
+    }
+
+    .topbar {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      width: auto !important;
+      margin: 0 0 22px !important;
+      padding: 0 !important;
+      transform: none !important;
+      z-index: 20;
+      justify-content: flex-end;
+    }
+
+    .topbar::before {
+      display: none !important;
+    }
+
+    .top-actions {
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-switch {
+      position: fixed !important;
+      top: max(10px, env(safe-area-inset-top));
+      left: 50%;
+      width: min(342px, calc(100vw - 28px));
+      transform: translateX(-50%) translateZ(0);
+      z-index: 120;
+    }
+
+    .page-switch,
+    .api-mode,
+    .mode-tabs {
+      gap: 0 !important;
+      overflow: hidden !important;
+      box-sizing: border-box;
+      -webkit-clip-path: inset(0 round 999px);
+      clip-path: inset(0 round 999px);
+    }
+
+    .page-switch::before,
+    .api-mode::before,
+    .mode-tabs::before {
+      left: 5px !important;
+      top: 5px !important;
+      bottom: 5px !important;
+      height: auto !important;
+      max-width: calc(100% - 10px);
+      box-sizing: border-box;
+    }
+
+    .page-switch::before { width: calc((100% - 10px) / 3) !important; }
+    .api-mode::before { width: calc((100% - 10px) / 2) !important; transform: translateX(calc(var(--active-index) * 100%)) !important; }
+    .mode-tabs::before { width: calc((100% - 10px) / 5) !important; transform: translateX(calc(var(--active-index) * 100%)) !important; }
+
+    .page-switch button,
+    .api-mode button,
+    .mode-tabs button {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 0 !important;
+      height: 38px;
+      padding: 0 8px !important;
+      line-height: 1 !important;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .api-mode button { height: 42px; }
+
+    .recite-panel {
+      isolation: isolate;
+    }
+
+    .recite-toolbar,
+    .reader {
+      position: relative;
+      z-index: 6;
+    }
+
+    .reader {
+      padding-bottom: calc(var(--bottom-controls-reserve) + env(safe-area-inset-bottom)) !important;
+      scroll-padding-bottom: calc(var(--bottom-controls-reserve) + env(safe-area-inset-bottom));
+    }
+
+    .recite-panel::after {
+      z-index: 4 !important;
+      height: 92px !important;
+      bottom: 0;
+    }
+
+    .mode-tabs {
+      bottom: max(14px, env(safe-area-inset-bottom)) !important;
+      z-index: 130 !important;
+    }
+
+    .toast {
+      z-index: 240 !important;
+    }
+
+    body[data-page="recite"] .toast,
+    body:has(#reciteView.active) .toast {
+      bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+    }
+
+    @supports not selector(body:has(*)) {
+      .toast { bottom: calc(82px + env(safe-area-inset-bottom)) !important; }
+    }
+
+    @media (max-width: 680px) {
+      :root {
+        --page-switch-reserve: 58px;
+        --bottom-controls-reserve: 150px;
+      }
+
+      .shell {
+        padding-top: calc(12px + var(--page-switch-reserve)) !important;
+      }
+
+      .shell::before {
+        height: 78px;
+      }
+
+      .topbar {
+        margin: 0 0 18px !important;
+      }
+
+      .page-switch {
+        top: max(8px, env(safe-area-inset-top));
+        width: calc(100vw - 16px);
+      }
+
+      .page-switch button {
+        height: 34px;
+      }
+
+      .mode-tabs {
+        width: calc(100% - 18px) !important;
+        bottom: max(8px, env(safe-area-inset-bottom)) !important;
+      }
+
+      .mode-tabs button {
+        height: 36px;
+        padding: 0 2px !important;
+        font-size: 12px;
+      }
+
+      body[data-page="recite"] .toast,
+      body:has(#reciteView.active) .toast {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        text-align: center;
+        bottom: calc(64px + env(safe-area-inset-bottom)) !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .api-mode::before,
+      .mode-tabs::before {
+        left: 4px !important;
+        top: 4px !important;
+        bottom: 4px !important;
+      }
+
+      .api-mode::before { width: calc((100% - 8px) / 2) !important; }
+      .mode-tabs::before { width: calc((100% - 8px) / 5) !important; }
+      .api-mode { padding: 4px !important; }
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .shell::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      .shell::before,
+      .recite-panel::after { -webkit-backdrop-filter: none; backdrop-filter: none; }
+    }
+
+
+
+    /* === V4 fixes: haze layer order, desktop top-row behavior, recite help, cool dark mode === */
+    :root {
+      --mode-help-reserve: 188px;
+    }
+
+    .shell {
+      padding-top: 28px !important;
+    }
+
+    .shell::before {
+      z-index: 6 !important;
+      height: 78px !important;
+      background: linear-gradient(180deg, rgba(238, 236, 234, 0.34), rgba(238, 236, 234, 0.14) 54%, rgba(238, 236, 234, 0)) !important;
+      -webkit-backdrop-filter: blur(10px) saturate(1.04) !important;
+      backdrop-filter: blur(10px) saturate(1.04) !important;
+    }
+
+    .topbar {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      width: auto !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 16px !important;
+      margin: 0 0 22px !important;
+      padding: 0 !important;
+      transform: none !important;
+      z-index: 80 !important;
+      isolation: isolate;
+    }
+
+    .topbar::before { display: none !important; }
+
+    .top-actions {
+      position: relative !important;
+      z-index: 84 !important;
+    }
+
+    .page-switch {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      width: 342px !important;
+      flex: 0 0 342px;
+      transform: translateZ(0) !important;
+      z-index: 86 !important;
+    }
+
+    body.is-scrolled .page-switch {
+      position: fixed !important;
+      top: max(10px, env(safe-area-inset-top)) !important;
+      left: 50% !important;
+      width: min(342px, calc(100vw - 28px)) !important;
+      flex-basis: auto;
+      transform: translateX(-50%) translateZ(0) !important;
+      z-index: 160 !important;
+    }
+
+    .api-mode {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      align-items: center !important;
+      gap: 0 !important;
+      padding: 5px !important;
+      overflow: hidden !important;
+      box-sizing: border-box;
+      -webkit-clip-path: inset(0 round 999px);
+      clip-path: inset(0 round 999px);
+      isolation: isolate;
+    }
+
+    .api-mode::before {
+      left: 5px !important;
+      top: 5px !important;
+      bottom: 5px !important;
+      width: calc((100% - 10px) / 2) !important;
+      height: auto !important;
+      max-width: calc(100% - 10px) !important;
+      transform: translateX(calc(var(--active-index) * 100%)) !important;
+      box-sizing: border-box;
+    }
+
+    .api-mode::after {
+      inset: 1px !important;
+      border-radius: inherit;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-mask-image: none !important;
+      mask-image: none !important;
+    }
+
+    .api-mode button {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 0 !important;
+      height: 42px !important;
+      padding: 0 8px !important;
+      line-height: 1 !important;
+      text-align: center !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+
+    .reader {
+      padding-bottom: calc(var(--mode-help-reserve) + env(safe-area-inset-bottom)) !important;
+      scroll-padding-bottom: calc(var(--mode-help-reserve) + env(safe-area-inset-bottom)) !important;
+    }
+
+    .mode-help {
+      position: fixed;
+      left: 50%;
+      bottom: calc(70px + env(safe-area-inset-bottom));
+      width: min(560px, calc(100vw - 28px));
+      transform: translateX(-50%) translateZ(0);
+      z-index: 1200;
+      padding: 9px 14px;
+      border: 1px solid var(--glass-stroke);
+      border-radius: 18px;
+      color: var(--subtle);
+      background: linear-gradient(135deg, rgba(255,255,255,.44), rgba(255,255,255,.16)), var(--glass-bg-strong);
+      box-shadow: var(--glass-shadow-soft);
+      -webkit-backdrop-filter: blur(10px) saturate(1.18);
+      backdrop-filter: blur(10px) saturate(1.18);
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+      pointer-events: none;
+      contain: paint;
+    }
+
+    body[data-page="recite"] .toast,
+    body:has(#reciteView.active) .toast {
+      bottom: calc(126px + env(safe-area-inset-bottom)) !important;
+    }
+
+    body[data-theme="dark"] {
+      --bg: #151b24;
+      --panel: #202938;
+      --panel-soft: #263243;
+      --panel-tint: #1b2431;
+      --ink: #edf4fb;
+      --subtle: #aab8c9;
+      --line: rgba(185, 204, 225, 0.10);
+      --line-strong: rgba(185, 204, 225, 0.16);
+      --accent: #8fb3d6;
+      --accent-strong: #a7c9e8;
+      --accent-ink: #101b2a;
+      --green: #86b9b2;
+      --gold: #b8ad7c;
+      --red: #c9909c;
+      --red-ink: #241820;
+      --core: #7d9fc7;
+      --broad: #7888b8;
+      --plain: #6f8798;
+      --important: #a9c7e8;
+      --keep-bg: #233348;
+      --keep-line: #456179;
+      --glass-bg: rgba(38, 49, 66, 0.56);
+      --glass-bg-strong: rgba(45, 58, 77, 0.74);
+      --glass-stroke: rgba(181, 205, 228, 0.16);
+      --glass-shadow: 0 16px 36px rgba(3, 8, 16, 0.34), inset 0 1px 0 rgba(210, 229, 246, 0.12), inset 0 -1px 0 rgba(0, 0, 0, 0.20);
+      --glass-shadow-soft: 0 8px 20px rgba(3, 8, 16, 0.25), inset 0 1px 0 rgba(210, 229, 246, 0.10);
+      --focus: 0 0 0 4px rgba(143, 179, 214, 0.30), 0 10px 26px rgba(3, 8, 16, 0.20);
+      --shadow: 0 28px 60px rgba(3, 8, 16, 0.40), 0 8px 22px rgba(3, 8, 16, 0.26), inset 0 1px 3px rgba(210, 229, 246, 0.08);
+      --shadow-soft: 0 16px 34px rgba(3, 8, 16, 0.27), inset 0 1px 2px rgba(210, 229, 246, 0.08);
+      --shadow-pressed: inset 0 3px 10px rgba(3, 8, 16, 0.24);
+      background:
+        radial-gradient(circle at 14% 8%, rgba(91, 127, 163, 0.26), transparent 30%),
+        radial-gradient(circle at 86% 8%, rgba(110, 139, 181, 0.18), transparent 26%),
+        linear-gradient(180deg, rgba(32, 43, 58, 0.86), rgba(21, 27, 36, 0) 320px),
+        var(--bg);
+    }
+
+    body[data-theme="dark"] .shell::before {
+      background: linear-gradient(180deg, rgba(21, 27, 36, 0.58), rgba(21, 27, 36, 0.24) 54%, rgba(21, 27, 36, 0)) !important;
+    }
+
+    body[data-theme="dark"] .page-switch,
+    body[data-theme="dark"] .status,
+    body[data-theme="dark"] .api-mode,
+    body[data-theme="dark"] .font-control,
+    body[data-theme="dark"] .mode-tabs,
+    body[data-theme="dark"] .mode-help,
+    body[data-theme="dark"] .toast {
+      background:
+        linear-gradient(135deg, rgba(197, 221, 242, 0.12), rgba(197, 221, 242, 0.04) 48%, rgba(197, 221, 242, 0.09)),
+        var(--glass-bg-strong) !important;
+      border-color: var(--glass-stroke) !important;
+    }
+
+    body[data-theme="dark"] .page-switch::before,
+    body[data-theme="dark"] .api-mode::before,
+    body[data-theme="dark"] .mode-tabs::before {
+      background:
+        linear-gradient(180deg, rgba(219, 237, 252, 0.25), rgba(219, 237, 252, 0.07) 18%, rgba(219, 237, 252, 0.04) 100%),
+        linear-gradient(135deg, rgba(143, 179, 214, 0.86), rgba(104, 135, 171, 0.66)) !important;
+      border-color: rgba(204, 225, 244, 0.20) !important;
+      box-shadow: 0 10px 22px rgba(2, 7, 15, 0.30), inset 0 1px 0 rgba(226, 241, 255, 0.22) !important;
+    }
+
+    body[data-theme="dark"] .btn.primary,
+    body[data-theme="dark"] .btn:not(.secondary):not(.subtle):not(.danger) {
+      color: var(--accent-ink);
+      background:
+        linear-gradient(135deg, rgba(226, 241, 255, 0.25), rgba(226, 241, 255, 0.06) 48%),
+        rgba(143, 179, 214, 0.76) !important;
+    }
+
+    body[data-theme="dark"] .btn.secondary,
+    body[data-theme="dark"] .icon-button,
+    body[data-theme="dark"] .btn.subtle {
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(202, 222, 240, 0.14), rgba(202, 222, 240, 0.04) 48%),
+        rgba(45, 58, 77, 0.78) !important;
+    }
+
+    body[data-theme="dark"] .theme-toggle {
+      color: #b7d6f2;
+      background:
+        radial-gradient(circle at 36% 30%, rgba(205, 228, 248, 0.90), rgba(130, 166, 203, 0.72) 44%, rgba(51, 65, 88, 0.84) 76%),
+        var(--panel-soft) !important;
+      box-shadow: 0 10px 22px rgba(3, 8, 16, 0.26), inset 0 2px 3px rgba(226, 241, 255, 0.16);
+    }
+
+    body[data-theme="dark"] .theme-toggle::before {
+      background: #9ec5e8;
+      filter: drop-shadow(0 2px 3px rgba(47, 83, 120, 0.34));
+    }
+
+    body[data-theme="dark"] .recite-panel::after {
+      background: linear-gradient(0deg, rgba(21, 27, 36, 0.58) 0%, rgba(21, 27, 36, 0.26) 46%, rgba(21, 27, 36, 0) 100%) !important;
+    }
+
+    @media (min-width: 681px) and (orientation: landscape) {
+      .topbar {
+        min-height: 54px;
+      }
+
+      .top-actions {
+        margin-left: auto;
+      }
+    }
+
+    @media (max-width: 680px) {
+      :root {
+        --mode-help-reserve: 196px;
+      }
+
+      .shell {
+        padding-top: 12px !important;
+      }
+
+      .topbar {
+        align-items: stretch !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        margin-bottom: 18px !important;
+      }
+
+      .page-switch {
+        width: 100% !important;
+        flex-basis: auto !important;
+      }
+
+      body.is-scrolled .page-switch {
+        width: calc(100vw - 16px) !important;
+        top: max(8px, env(safe-area-inset-top)) !important;
+      }
+
+      .mode-help {
+        width: calc(100% - 18px);
+        bottom: calc(58px + env(safe-area-inset-bottom));
+        padding: 8px 10px;
+        border-radius: 16px;
+        font-size: 11.5px;
+      }
+
+      body[data-page="recite"] .toast,
+      body:has(#reciteView.active) .toast {
+        bottom: calc(112px + env(safe-area-inset-bottom)) !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .api-mode {
+        padding: 4px !important;
+      }
+
+      .api-mode::before {
+        left: 4px !important;
+        top: 4px !important;
+        bottom: 4px !important;
+        width: calc((100% - 8px) / 2) !important;
+      }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      .shell::before,
+      .mode-help {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+    }
+
+
+    /* === V5 fixes: stable top switch, safe recite bottom haze, one-shot help, stricter chunking === */
+    :root {
+      --switch-fixed-top: max(10px, env(safe-area-inset-top));
+      --switch-fixed-height: 50px;
+      --bottom-haze-height: 116px;
+      --glass-bg: rgba(255, 253, 248, 0.50);
+      --glass-bg-strong: rgba(255, 253, 248, 0.64);
+      --glass-blur: 12px;
+      --glass-blur-soft: 9px;
+    }
+
+    body[data-theme="dark"] {
+      --glass-bg: rgba(38, 49, 66, 0.52);
+      --glass-bg-strong: rgba(45, 58, 77, 0.68);
+    }
+
+    .shell {
+      padding-top: var(--switch-fixed-top) !important;
+    }
+
+    .page-switch,
+    body.is-scrolled .page-switch {
+      position: fixed !important;
+      top: var(--switch-fixed-top) !important;
+      left: 50% !important;
+      width: min(342px, calc(100vw - 28px)) !important;
+      flex: 0 0 auto !important;
+      transform: translateX(-50%) translateZ(0) !important;
+      z-index: 180 !important;
+      will-change: auto !important;
+      backface-visibility: hidden;
+    }
+
+    .topbar {
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      min-height: var(--switch-fixed-height) !important;
+      margin: 0 0 22px !important;
+      padding: 0 !important;
+      z-index: 110 !important;
+    }
+
+    .top-actions {
+      position: relative !important;
+      z-index: 112 !important;
+      margin-left: auto;
+    }
+
+    .shell::before {
+      height: calc(var(--switch-fixed-height) + 28px) !important;
+      z-index: 100 !important;
+      pointer-events: none !important;
+    }
+
+    .page-switch,
+    .api-mode,
+    .font-control,
+    .mode-tabs,
+    .status {
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.10) 48%, rgba(255, 255, 255, 0.26)),
+        var(--glass-bg) !important;
+      -webkit-backdrop-filter: blur(var(--glass-blur-soft)) saturate(1.20) !important;
+      backdrop-filter: blur(var(--glass-blur-soft)) saturate(1.20) !important;
+      contain: layout paint style;
+    }
+
+    .page-switch,
+    .mode-tabs {
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.22) !important;
+      backdrop-filter: blur(var(--glass-blur)) saturate(1.22) !important;
+    }
+
+    body[data-theme="dark"] .page-switch,
+    body[data-theme="dark"] .status,
+    body[data-theme="dark"] .api-mode,
+    body[data-theme="dark"] .font-control,
+    body[data-theme="dark"] .mode-tabs,
+    body[data-theme="dark"] .mode-help,
+    body[data-theme="dark"] .toast {
+      background:
+        linear-gradient(135deg, rgba(197, 221, 242, 0.10), rgba(197, 221, 242, 0.035) 48%, rgba(197, 221, 242, 0.08)),
+        var(--glass-bg-strong) !important;
+    }
+
+    .recite-panel::after {
+      display: none !important;
+    }
+
+    body[data-page="recite"]::after {
+      content: "";
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: calc(var(--bottom-haze-height) + env(safe-area-inset-bottom));
+      pointer-events: none;
+      z-index: 96;
+      background: linear-gradient(0deg, rgba(238, 236, 234, 0.38) 0%, rgba(238, 236, 234, 0.18) 52%, rgba(238, 236, 234, 0) 100%);
+      -webkit-backdrop-filter: blur(10px) saturate(1.04);
+      backdrop-filter: blur(10px) saturate(1.04);
+      -webkit-mask-image: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.82) 56%, rgba(0, 0, 0, 0) 100%);
+      mask-image: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.82) 56%, rgba(0, 0, 0, 0) 100%);
+      contain: paint;
+    }
+
+    body[data-theme="dark"][data-page="recite"]::after {
+      background: linear-gradient(0deg, rgba(21, 27, 36, 0.58) 0%, rgba(21, 27, 36, 0.26) 54%, rgba(21, 27, 36, 0) 100%);
+    }
+
+    .mode-tabs,
+    .mode-help,
+    body[data-page="recite"] .toast,
+    body:has(#reciteView.active) .toast {
+      position: fixed;
+    }
+
+    .mode-tabs { z-index: 132 !important; }
+    .mode-help { z-index: 134 !important; }
+
+    .mode-help {
+      opacity: 1;
+      transition: opacity var(--motion), transform var(--motion);
+    }
+
+    .mode-help.is-hidden {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px) translateZ(0) !important;
+    }
+
+    @media (orientation: portrait), (max-width: 860px) {
+      :root {
+        --switch-fixed-top: max(8px, env(safe-area-inset-top));
+        --switch-fixed-height: 46px;
+      }
+
+      .shell {
+        padding-top: calc(var(--switch-fixed-top) + var(--switch-fixed-height) + 12px) !important;
+      }
+
+      .topbar {
+        justify-content: center !important;
+        min-height: 48px !important;
+        margin-bottom: 18px !important;
+      }
+
+      .top-actions {
+        margin-left: 0 !important;
+        justify-content: center !important;
+        width: min(460px, 100%) !important;
+      }
+
+      .page-switch,
+      body.is-scrolled .page-switch {
+        width: min(342px, calc(100vw - 16px)) !important;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        padding-top: calc(var(--switch-fixed-top) + var(--switch-fixed-height) + 10px) !important;
+      }
+
+      .top-actions {
+        grid-template-columns: 48px minmax(0, 1fr) !important;
+      }
+    }
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      body[data-page="recite"]::after,
+      .shell::before {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      body[data-page="recite"]::after,
+      .shell::before,
+      .page-switch,
+      .api-mode,
+      .font-control,
+      .mode-tabs,
+      .status {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+    }
+
+
+    /* === V6 bug fixes: bottom-tab z-order, responsive header clearance, stable card buttons === */
+    body[data-page="recite"]::after {
+      z-index: 88 !important;
+    }
+
+    .mode-tabs {
+      z-index: 360 !important;
+      isolation: isolate !important;
+      transform: translateX(-50%) translateZ(2px) !important;
+      backface-visibility: hidden;
+    }
+
+    .mode-tabs::before,
+    .mode-tabs::after,
+    .mode-tabs button {
+      transform-style: flat;
+    }
+
+    .page-switch,
+    body.is-scrolled .page-switch {
+      z-index: 420 !important;
+      isolation: isolate !important;
+      backface-visibility: hidden;
+    }
+
+    .shell::before {
+      z-index: 90 !important;
+    }
+
+    .topbar,
+    .top-actions {
+      z-index: 210 !important;
+    }
+
+    @media (max-width: 1200px) {
+      .shell {
+        padding-top: calc(var(--switch-fixed-top) + var(--switch-fixed-height) + 12px) !important;
+      }
+
+      .topbar {
+        justify-content: center !important;
+        min-height: 48px !important;
+        margin-bottom: 18px !important;
+      }
+
+      .top-actions {
+        width: min(460px, 100%) !important;
+        margin-left: 0 !important;
+        justify-content: center !important;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        padding-top: calc(var(--switch-fixed-top) + var(--switch-fixed-height) + 10px) !important;
+      }
+    }
+
+    .cache-card .btn {
+      transform: none !important;
+      transition: opacity var(--motion), background-color var(--motion), box-shadow var(--motion) !important;
+      will-change: auto !important;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .cache-card .btn:hover,
+    .cache-card .btn:active,
+    .cache-card .btn:focus-visible {
+      transform: none !important;
+    }
+
+    .cache-card .btn.danger {
+      min-width: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      align-self: stretch;
+    }
+
+
+    /* === V8 final fix: recite bottom haze stops at tabs top, help/tabs stay above haze === */
+
+    /*
+      层级目标：
+      1. 底部模糊层只覆盖：屏幕底部 -> 底部层级切换条顶部
+      2. 重点操作说明 .mode-help 永远在模糊层上方
+      3. 底部层级切换条 .mode-tabs 永远在最上方
+    */
+    :root {
+      /* 底部层级切换条离屏幕底部的距离 */
+      --recite-tabs-bottom: max(14px, env(safe-area-inset-bottom));
+
+      /*
+        .mode-tabs 实际高度：
+        桌面端：button 38px + padding 5px*2 + border 约 2px = 50px
+      */
+      --recite-tabs-height: 50px;
+
+      /* 从屏幕底部到层级切换条顶部的距离 */
+      --recite-tabs-top-from-bottom: calc(var(--recite-tabs-bottom) + var(--recite-tabs-height));
+
+      /* 层级 */
+      --recite-bottom-haze-z: 240;
+      --recite-mode-help-z: 980;
+      --recite-mode-tabs-z: 1000;
+    }
+
+    /* 小屏：mode-tabs button 通常是 36px，高度约 48px */
+    @media (max-width: 680px) {
+      :root {
+        --recite-tabs-bottom: max(8px, env(safe-area-inset-bottom));
+        --recite-tabs-height: 48px;
+      }
+    }
+
+    /* 极窄屏：mode-tabs padding 4px，button 36px，高度约 46px */
+    @media (max-width: 430px) {
+      :root {
+        --recite-tabs-height: 46px;
+      }
+    }
+
+    /* 彻底禁用旧的底部模糊伪元素，避免它们盖住提示或切换条 */
+    .recite-panel::after,
+    body[data-page="recite"]::after {
+      content: none !important;
+      display: none !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+
+    /* 支持 :has 的浏览器里，也禁用 body:has(...) 的旧伪元素 */
+    body:has(#reciteView.active)::after {
+      content: none !important;
+      display: none !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+
+    /* 独立底部模糊层，默认隐藏 */
+    .recite-bottom-haze {
+      display: none;
+      position: fixed !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+
+      /*
+        关键修复：
+        模糊层最高只到 .mode-tabs 顶部，
+        不再使用 --bottom-haze-height 那种过高的模糊区域。
+      */
+      height: var(--recite-tabs-top-from-bottom) !important;
+
+      pointer-events: none !important;
+      z-index: var(--recite-bottom-haze-z) !important;
+
+      background: linear-gradient(
+        0deg,
+        rgba(238, 236, 234, 0.38) 0%,
+        rgba(238, 236, 234, 0.18) 54%,
+        rgba(238, 236, 234, 0) 100%
+      ) !important;
+
+      -webkit-backdrop-filter: blur(10px) saturate(1.04) !important;
+      backdrop-filter: blur(10px) saturate(1.04) !important;
+
+      -webkit-mask-image: linear-gradient(
+        0deg,
+        #000 0%,
+        rgba(0, 0, 0, 0.82) 58%,
+        rgba(0, 0, 0, 0) 100%
+      ) !important;
+      mask-image: linear-gradient(
+        0deg,
+        #000 0%,
+        rgba(0, 0, 0, 0.82) 58%,
+        rgba(0, 0, 0, 0) 100%
+      ) !important;
+
+      contain: paint;
+    }
+
+    /* 背诵页显示底部模糊层 */
+    body[data-page="recite"] .recite-bottom-haze {
+      display: block !important;
+    }
+
+    /* 另一种状态判断：当背诵 view active 时显示 */
+    body:has(#reciteView.active) .recite-bottom-haze {
+      display: block !important;
+    }
+
+    /* 深色模式底部模糊 */
+    body[data-theme="dark"] .recite-bottom-haze {
+      background: linear-gradient(
+        0deg,
+        rgba(21, 27, 36, 0.58) 0%,
+        rgba(21, 27, 36, 0.26) 54%,
+        rgba(21, 27, 36, 0) 100%
+      ) !important;
+    }
+
+    /* 底部层级切换条：永远在底部模糊层上方 */
+    .mode-tabs {
+      position: fixed !important;
+      bottom: var(--recite-tabs-bottom) !important;
+      z-index: var(--recite-mode-tabs-z) !important;
+
+      isolation: isolate !important;
+      overflow: hidden !important;
+      -webkit-clip-path: inset(0 round 999px) !important;
+      clip-path: inset(0 round 999px) !important;
+
+      opacity: 1 !important;
+      filter: none !important;
+      -webkit-filter: none !important;
+
+      transform: translateX(-50%) translateZ(0) !important;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+    }
+
+    /*
+      重要：
+      .mode-tabs::after 只保留玻璃高光，
+      不能再承担底部大面积 blur。
+    */
+    .mode-tabs::after {
+      content: "" !important;
+      position: absolute !important;
+      inset: 1px !important;
+      z-index: 0 !important;
+      border-radius: inherit !important;
+      pointer-events: none !important;
+
+      background:
+        radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.68), transparent 34%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.24), transparent 46%, rgba(255, 255, 255, 0.12)) !important;
+
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-mask-image: none !important;
+      mask-image: none !important;
+
+      mix-blend-mode: screen !important;
+      opacity: 0.50 !important;
+      transform: none !important;
+      contain: paint;
+    }
+
+    body[data-theme="dark"] .mode-tabs::after {
+      mix-blend-mode: normal !important;
+      opacity: 0.22 !important;
+    }
+
+    /* 选中滑块在高光之上 */
+    .mode-tabs::before {
+      z-index: 1 !important;
+    }
+
+    /* 按钮文字在最上层，避免任何伪元素盖住文字 */
+    .mode-tabs button {
+      position: relative !important;
+      z-index: 2 !important;
+
+      opacity: 1 !important;
+      filter: none !important;
+      -webkit-filter: none !important;
+
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.26);
+    }
+
+    body[data-theme="dark"] .mode-tabs button {
+      text-shadow: none !important;
+    }
+
+    /*
+      重点操作说明：
+      放在底部层级切换条顶部之上，
+      并且 z-index 高于底部模糊层。
+    */
+    .mode-help {
+      position: fixed !important;
+      left: 50% !important;
+      bottom: calc(var(--recite-tabs-top-from-bottom) + 6px) !important;
+
+      width: min(560px, calc(100vw - 28px)) !important;
+      transform: translateX(-50%) translateZ(0) !important;
+
+      z-index: var(--recite-mode-help-z) !important;
+
+      opacity: 1;
+      filter: none !important;
+      -webkit-filter: none !important;
+
+      pointer-events: none !important;
+      transition: opacity var(--motion), transform var(--motion);
+    }
+
+    /* 保留原本的隐藏动画 */
+    .mode-help.is-hidden {
+      opacity: 0 !important;
+      transform: translateX(-50%) translateY(8px) translateZ(0) !important;
+    }
+
+    /* 小屏提示稍微贴近切换条 */
+    @media (max-width: 680px) {
+      .mode-help {
+        width: calc(100% - 18px) !important;
+        bottom: calc(var(--recite-tabs-top-from-bottom) + 4px) !important;
+        padding: 8px 10px;
+        border-radius: 16px;
+        font-size: 11.5px;
+      }
+    }
+
+    /* Toast 避开底部说明和层级切换条 */
+    body[data-page="recite"] .toast,
+    body:has(#reciteView.active) .toast {
+      bottom: calc(var(--recite-tabs-top-from-bottom) + 58px) !important;
+    }
+
+    /* 不支持 :has 的浏览器 fallback */
+    @supports not selector(body:has(*)) {
+      #reciteView:not(.active) .recite-bottom-haze {
+        display: none !important;
+      }
+
+      #reciteView.active .recite-bottom-haze {
+        display: block !important;
+      }
+
+      #reciteView.active .mode-help {
+        z-index: var(--recite-mode-help-z) !important;
+      }
+
+      #reciteView.active .mode-tabs {
+        z-index: var(--recite-mode-tabs-z) !important;
+      }
+    }
+
+    /* 不支持 backdrop-filter 时，保留淡色渐变，不做模糊 */
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .recite-bottom-haze {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+    }
+
+    /* 用户减少透明效果时，不做底部模糊 */
+    @media (prefers-reduced-transparency: reduce) {
+      .recite-bottom-haze,
+      .mode-help {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <nav class="page-switch" id="pageSwitch" data-page="cards" aria-label="页面切换">
+        <button id="cardsTab" class="active" type="button" data-page="cards">卡片</button>
+        <button id="configTab" type="button" data-page="config">配置</button>
+        <button id="reciteTab" type="button" data-page="recite">背诵</button>
+      </nav>
+      <div class="top-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深色或浅色模式" title="切换深色或浅色模式">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M12 3v2"></path>
+            <path d="M12 19v2"></path>
+            <path d="m4.22 4.22 1.42 1.42"></path>
+            <path d="m18.36 18.36 1.42 1.42"></path>
+            <path d="M3 12h2"></path>
+            <path d="M19 12h2"></path>
+            <path d="m4.22 19.78 1.42-1.42"></path>
+            <path d="m18.36 5.64 1.42-1.42"></path>
+            <circle cx="12" cy="12" r="4"></circle>
+          </svg>
+        </button>
+        <div class="status" id="status" data-tone="ok" aria-live="polite">
+          <span class="status-dot"></span>
+          <span id="statusText">准备就绪</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="view active" id="cardsView">
+      <section class="panel cards-wrap">
+        <div class="panel-head stack">
+          <h2 class="panel-title">缓存的背诵卡片</h2>
+          <span class="hint" id="cardsSummary">浏览器内自动缓存当前语料和标注</span>
+        </div>
+        <div class="panel-body">
+          <div class="cards-list" id="cardsList" aria-label="缓存卡片"></div>
+          <div class="cards-empty" id="cardsEmpty" hidden>还没有缓存卡片。生成或解析标注后会自动加入这里。</div>
+          <div class="cards-actions">
+            <button class="btn primary-wide" id="exportCards" type="button">导出文件</button>
+            <button class="btn secondary" id="importCards" type="button">导入文件</button>
+            <button class="btn danger" id="clearCards" type="button">清除缓存</button>
+          </div>
+          <input id="importCardsFile" type="file" accept="application/json,.json" hidden>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="configView">
+      <div class="config-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">语料与 API</h2>
+          </div>
+          <div class="panel-body">
+            <label>
+              源语料
+              <textarea id="sourceText" spellcheck="false"></textarea>
+            </label>
+
+            <div class="api-mode" id="apiModeTabs" data-api-mode="developer" aria-label="API 模式">
+              <button class="active" type="button" data-api-mode="developer">开发者 API</button>
+              <button type="button" data-api-mode="custom">自定义 DS API</button>
+            </div>
+
+            <div class="api-custom-fields" id="customApiFields" hidden>
+              <label>
+                DeepSeek API Key
+                <span class="key-field">
+                  <input id="apiKey" type="password" autocomplete="off" placeholder="sk-...">
+                  <button class="icon-button" id="toggleKey" type="button" aria-label="显示或隐藏 API key" title="显示或隐藏 API key">
+                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </span>
+              </label>
+
+              <label>
+                模型
+                <select id="modelName">
+                  <option value="deepseek-v4-flash">deepseek v4 flash (1M)</option>
+                  <option value="deepseek-v4-pro">Deepseek v4 pro (1M)</option>
+                </select>
+              </label>
+              <label>
+                API 端点
+                <input id="apiEndpoint" type="text" value="https://api.deepseek.com/chat/completions">
+              </label>
+            </div>
+
+            <div class="button-row">
+              <button class="btn" id="generateApi" type="button">生成标注语料</button>
+              <button class="btn secondary" id="mockGenerate" type="button">隔字生成</button>
+              <button class="btn danger" id="clearSource" type="button">清空源语料</button>
+            </div>
+
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head stack">
+            <h2 class="panel-title">标注结果</h2>
+            <span class="hint" id="notesText">可编辑后重新解析</span>
+            <div class="protocol result-protocol" aria-label="标注协议">
+              <div class="protocol-item"><span class="swatch keep"></span><span><code>⟦...⟧</code> 结构保护</span></div>
+              <div class="protocol-item"><span class="swatch core"></span><span><code>⟬...⟭</code> 一层核心</span></div>
+              <div class="protocol-item"><span class="swatch broad"></span><span><code>⟪...⟫</code> 二层扩展</span></div>
+              <div class="protocol-item"><span class="swatch"></span><span><code>|</code> 最小语言单位</span></div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="markedEditor" class="marked-editor" contenteditable="true" spellcheck="false" aria-label="标注结果"></div>
+            <div class="button-row">
+              <button class="btn secondary" id="copyMarked" type="button">复制标注</button>
+              <button class="btn secondary" id="parseAndRecite" type="button">解析并进入背诵</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view" id="reciteView">
+      <section class="panel recite-panel">
+        <div class="recite-toolbar">
+          <div class="recite-actions">
+            <label class="font-control" title="调整背诵字号">
+              <span>字号</span>
+              <input id="fontSizeControl" type="range" min="15" max="36" step="0.5" value="21">
+            </label>
+            <button class="btn secondary" id="revealAll" type="button">全显</button>
+            <button class="btn secondary" id="resetMode" type="button">重置</button>
+          </div>
+        </div>
+        <article class="reader" id="reader" aria-label="背诵内容"></article>
+        <div class="mode-help" id="modeHelp" aria-label="重点操作说明">拖动词块可遮盖/显示；长按词块标为重点，继续长按或划过已重点可取消。切到「重点」层，只练手动重点和高概率考点。</div>
+        <div class="recite-bottom-haze" aria-hidden="true"></div>
+        <div class="mode-tabs" id="modeTabs" role="tablist" aria-label="遮盖层级">
+            <button class="active" data-mode="none" type="button">原文</button>
+            <button data-mode="level1" type="button">一层</button>
+            <button data-mode="level2" type="button">二层</button>
+            <button data-mode="important" type="button">重点</button>
+            <button data-mode="all" type="button">全遮</button>
+          </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "beisong-wanxing-settings";
+    const CARDS_STORAGE_KEY = "beisong-wanxing-cards";
+    const DEVELOPER_API_KEY = "sk-155ea23244704b57accf83e9ab24f957";
+    const DEVELOPER_API_ENDPOINT = "https://api.deepseek.com/chat/completions";
+    const DEVELOPER_MODEL = "deepseek-v4-flash";
+    const MARK_KEEP_OPEN = "\u27e6";
+    const MARK_KEEP_CLOSE = "\u27e7";
+    const MARK_CORE_OPEN = "\u27ec";
+    const MARK_CORE_CLOSE = "\u27ed";
+    const MARK_BROAD_OPEN = "\u27ea";
+    const MARK_BROAD_CLOSE = "\u27eb";
+
+    const directMarkPrompt = [
+      "你是背诵完形材料的语义标注器，只返回 JSON，不返回 Markdown。",
+      "输入会给你 source 和 chunks。chunks 是本地已经稳定切好的词块，每个词块有 id、text、lang、line、defaultKeep。",
+      "不要改写、删除、添加原文，不要输出全文，不要插入 |。",
+      "只返回这个 JSON 结构：{\"core\":[[startId,endId]],\"broad\":[[startId,endId]],\"priority\":[{\"id\":数字,\"score\":1到100,\"reason\":\"简短理由\"}],\"keep\":[[startId,endId]],\"notes\":\"简短说明\"}。",
+      "你要像命题老师设计填空题一样判断：哪里最可能被挖空、哪里最能区分是否真的背会，才进 core 或高分 priority。",
+      "core 是第一层高概率考点，只放最像填空题答案的硬信息：①年份/数字/比例/排序本体；②人物、地点、机构、作品、事件、朝代、国家等专名；③理论、概念、制度、政策、公式、模型、术语名；④因果链、比较关系、定义判断中的原因、结果、对象、归属、结论关键词。",
+      "broad 是第二层扩展考点，放次高概率答案：限定条件、分类项、配对项、关键动作、关系谓语、重要修饰语、支撑性事实。broad 用来辅助回忆句意，但仍必须有考点价值。",
+      "priority 必须列出 24-72 个最值得挖空的单个词块 id；90-100 分只给数字、专名、术语、事件、理论、公式、结论核心词；70-89 分给次级但仍可能考的支撑词；低于 60 分的普通词不要列入。网页会优先用 priority 选第一层。",
+      "priority 的理由必须说明它为什么像考试答案，例如‘年份数字’‘专有名词’‘理论名称’‘定义对象’‘因果关键结果’‘比较配对项’；不要因为词里包含‘并/和/但/与/或’等字就把它当连接词或保留项。",
+      "只在词块本身就是独立逻辑连接词，并且上下文确实表达并列、转折、选择、递进、因果时，才可把‘并、和、但、与、或、以及、且、however、but、and、or’视为逻辑词；如果这些字只是词内部字符或固定名称的一部分，例如‘并发、并行、和谐、共和国、但丁、或许、或者说’，绝不能因此 keep 或高分。",
+      "keep 只用于标题编号、列表符号、箭头、纯结构符号、标点和必须原样显示的排版符号。普通年份、世纪、年代、金额、正文数字、学科术语、专名都不是结构保护。",
+      "时间与数字表达必须优先标记数字本体：‘20世纪’优先给‘20’高分，不要只标‘世纪’；‘1949年’优先标‘1949’；‘21st century’优先标‘21st’；‘三十年’优先标‘三十’。‘世纪、年代、年、月、日、century、year’这类单位词单独出现时通常不是核心答案。",
+      "遇到数字+单位被切成相邻词块时，priority 必须让数字词块分数高于单位词块；除非单位词本身是专有概念的一部分，否则不要只把单位词放进 core。",
+      "遇到概念词被切成‘前缀+后缀’时，优先选择能限定概念的前缀或完整术语，不要只选后缀：例如‘民族资本主义’优先‘民族资本主义’或‘资本’，不要只选‘主义’；‘科举制度’优先‘科举’或完整短语，不要只选‘制度’。",
+      "遇到短语被切成多个词块时，只挑最能代表答案的 1-2 个锚点词：例如‘20世纪初的民族资本主义发展’优先选‘20’‘民族资本主义’，不要选‘世纪’‘初的’‘发展’这类弱词。",
+      "不要把‘重要、不同、主要、方面、进行、具有、出现、形成、发展、影响、作用、问题、情况、内容、特点、意义、原因、结果、措施、背景’等泛化词单独作为高分答案；只有它们与专名/概念组成完整考点时才可考虑。",
+      "不要为了凑比例把普通形容词、副词、助词、介词、语气词、泛动词标进 core；第一层宁可少而准，第二层再覆盖可帮助回忆的扩展考点。",
+      "core 和 broad 要在不同段落、不同语言中适度分布，但分布均匀不能牺牲考点质量；如果某段全是虚词或背景套话，可以少标。",
+      "跨中文、英文、日文混合材料时，同一原则适用：优先数字、专名、术语、概念、事件、结论，不要把重点集中在单一语言。",
+      "范围必须使用已有 id，startId <= endId，不要跨换行，不要重叠；core 与 broad 尽量不要连续包一大串，相邻高价值词可分开列 priority。"
+    ].join("\n");
+    const state = {
+      page: "cards",
+      mode: "none",
+      markedText: "",
+      activeCardId: "",
+      cards: [],
+      units: [],
+      dragging: false,
+      dragHiddenValue: true,
+      markDragging: false,
+      dragImportantValue: true,
+      longPressTimer: 0,
+      longPressFired: false,
+      pointerStart: null,
+      scrollingReader: false,
+      touchedDuringDrag: new Set(),
+      reciteHelpDismissed: false,
+      reciteHelpSignature: ""
+    };
+
+    const els = {
+      pageSwitch: document.getElementById("pageSwitch"),
+      cardsTab: document.getElementById("cardsTab"),
+      configTab: document.getElementById("configTab"),
+      reciteTab: document.getElementById("reciteTab"),
+      cardsView: document.getElementById("cardsView"),
+      configView: document.getElementById("configView"),
+      reciteView: document.getElementById("reciteView"),
+      cardsList: document.getElementById("cardsList"),
+      cardsEmpty: document.getElementById("cardsEmpty"),
+      cardsSummary: document.getElementById("cardsSummary"),
+      exportCards: document.getElementById("exportCards"),
+      importCards: document.getElementById("importCards"),
+      importCardsFile: document.getElementById("importCardsFile"),
+      clearCards: document.getElementById("clearCards"),
+      status: document.getElementById("status"),
+      statusText: document.getElementById("statusText"),
+      themeToggle: document.getElementById("themeToggle"),
+      sourceText: document.getElementById("sourceText"),
+      apiKey: document.getElementById("apiKey"),
+      apiModeTabs: document.getElementById("apiModeTabs"),
+      customApiFields: document.getElementById("customApiFields"),
+      toggleKey: document.getElementById("toggleKey"),
+      modelName: document.getElementById("modelName"),
+      apiEndpoint: document.getElementById("apiEndpoint"),
+      generateApi: document.getElementById("generateApi"),
+      mockGenerate: document.getElementById("mockGenerate"),
+      clearSource: document.getElementById("clearSource"),
+      markedEditor: document.getElementById("markedEditor"),
+      copyMarked: document.getElementById("copyMarked"),
+      parseAndRecite: document.getElementById("parseAndRecite"),
+      notesText: document.getElementById("notesText"),
+      modeTabs: document.getElementById("modeTabs"),
+      modeHelp: document.getElementById("modeHelp"),
+      revealAll: document.getElementById("revealAll"),
+      resetMode: document.getElementById("resetMode"),
+      backConfig: document.getElementById("backConfig"),
+      fontSizeControl: document.getElementById("fontSizeControl"),
+      reader: document.getElementById("reader"),
+      toast: document.getElementById("toast")
+    };
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function setStatus(message, tone = "ok") {
+      els.status.dataset.tone = tone;
+      els.status.dataset.busy = "false";
+      els.status.style.setProperty("--progress", "0%");
+      els.statusText.textContent = message;
+    }
+
+    function setProgress(message, percent, tone = "ok") {
+      els.status.dataset.tone = tone;
+      els.status.dataset.busy = "true";
+      els.status.style.setProperty("--progress", `${Math.max(0, Math.min(100, percent))}%`);
+      els.statusText.textContent = message;
+    }
+
+    function finishProgress(message, tone = "ok") {
+      els.status.dataset.tone = tone;
+      els.status.dataset.busy = "true";
+      els.status.style.setProperty("--progress", "100%");
+      els.statusText.textContent = message;
+      window.setTimeout(() => {
+        els.status.dataset.busy = "false";
+        els.status.style.setProperty("--progress", "0%");
+      }, 900);
+    }
+
+    function toast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(toast.timer);
+      toast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 1800);
+    }
+
+    function currentMaterialSignature() {
+      return hashText(`${els.sourceText.value.trim()}\n---\n${els.markedEditor.textContent.trim()}`);
+    }
+
+    function syncReciteHelpVisibility() {
+      if (!els.modeHelp) return;
+      els.modeHelp.classList.toggle("is-hidden", state.reciteHelpDismissed || !state.units.length);
+      document.body.classList.toggle("recite-help-hidden", state.reciteHelpDismissed || !state.units.length);
+    }
+
+    function resetReciteHelpForCurrentMaterial() {
+      state.reciteHelpSignature = currentMaterialSignature();
+      state.reciteHelpDismissed = false;
+      syncReciteHelpVisibility();
+    }
+
+    function dismissReciteHelp() {
+      if (state.page !== "recite" || state.reciteHelpDismissed) return;
+      state.reciteHelpDismissed = true;
+      syncReciteHelpVisibility();
+    }
+
+    function hashText(text) {
+      let hash = 2166136261;
+      for (let i = 0; i < text.length; i += 1) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return (hash >>> 0).toString(36);
+    }
+
+    function formatDateTime(timestamp) {
+      if (!timestamp) return "未背诵";
+      const date = new Date(timestamp);
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function formatRelativeTime(timestamp) {
+      if (!timestamp) return "";
+      const diff = Math.max(0, Date.now() - timestamp);
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return "刚刚";
+      if (minutes < 60) return `${minutes} min 前`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours} h ${minutes % 60} min 前`;
+      const days = Math.floor(hours / 24);
+      return `${days} d 前`;
+    }
+
+    function cardExcerpt(source, markedText) {
+      const text = (source || markedText || "")
+        .replace(/[⟦⟧⟬⟭⟪⟫|]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      return text ? `${text.slice(0, 52)}${text.length > 52 ? "……" : ""}` : "未命名卡片";
+    }
+
+    function normalizeCard(raw) {
+      if (!raw || typeof raw !== "object") return null;
+      const sourceText = typeof raw.sourceText === "string" ? raw.sourceText : "";
+      const markedText = typeof raw.markedText === "string" ? raw.markedText : "";
+      if (!sourceText && !markedText) return null;
+      const signature = raw.signature || hashText(`${sourceText}\n---\n${markedText}`);
+      const now = Date.now();
+      return {
+        id: typeof raw.id === "string" && raw.id ? raw.id : `card-${signature}-${now.toString(36)}`,
+        signature,
+        title: typeof raw.title === "string" && raw.title ? raw.title : cardExcerpt(sourceText, markedText),
+        sourceText,
+        markedText,
+        notes: typeof raw.notes === "string" ? raw.notes : "",
+        source: typeof raw.source === "string" ? raw.source : "ai",
+        createdAt: Number(raw.createdAt) || now,
+        updatedAt: Number(raw.updatedAt) || now,
+        lastRecitedAt: Number(raw.lastRecitedAt) || 0
+      };
+    }
+
+    function saveCards() {
+      localStorage.setItem(CARDS_STORAGE_KEY, JSON.stringify(state.cards));
+      renderCards();
+    }
+
+    function loadCards() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(CARDS_STORAGE_KEY) || "[]");
+        state.cards = Array.isArray(parsed) ? parsed.map(normalizeCard).filter(Boolean) : [];
+      } catch {
+        state.cards = [];
+        localStorage.removeItem(CARDS_STORAGE_KEY);
+      }
+      renderCards();
+    }
+
+    function cacheCurrentCard(source = "ai") {
+      const sourceText = els.sourceText.value.trim();
+      const markedText = els.markedEditor.textContent.trim();
+      if (!sourceText && !markedText) return null;
+      const signature = hashText(`${sourceText}\n---\n${markedText}`);
+      const existing = state.cards.find((card) => card.signature === signature);
+      const now = Date.now();
+      const card = normalizeCard({
+        ...(existing || {}),
+        signature,
+        sourceText,
+        markedText,
+        notes: els.notesText.textContent || "",
+        source,
+        title: cardExcerpt(sourceText, markedText),
+        updatedAt: now
+      });
+      if (!card) return null;
+      if (existing) Object.assign(existing, card, { id: existing.id, createdAt: existing.createdAt, lastRecitedAt: existing.lastRecitedAt || 0 });
+      else state.cards.unshift(card);
+      state.activeCardId = existing ? existing.id : card.id;
+      saveCards();
+      return existing || card;
+    }
+
+    function renderCards() {
+      if (!els.cardsList) return;
+      const sorted = [...state.cards].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      els.cardsSummary.textContent = sorted.length ? `共 ${sorted.length} 张，浏览器内自动保存` : "浏览器内自动缓存当前语料和标注";
+      els.cardsEmpty.hidden = sorted.length > 0;
+      els.cardsList.innerHTML = sorted.map((card) => {
+        const last = card.lastRecitedAt ? `${formatDateTime(card.lastRecitedAt)}（${formatRelativeTime(card.lastRecitedAt)}）` : "还没有背诵记录";
+        return `
+          <article class="cache-card" data-card-id="${escapeHtml(card.id)}">
+            <button class="btn danger" type="button" data-card-action="delete">删除</button>
+            <div class="cache-card-main">
+              <div class="cache-title">${escapeHtml(card.title || cardExcerpt(card.sourceText, card.markedText))}</div>
+              <div class="cache-meta">上次背诵时间：<br>${escapeHtml(last)}</div>
+            </div>
+            <button class="btn subtle" type="button" data-card-action="config">配置</button>
+            <button class="btn" type="button" data-card-action="recite">背诵</button>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function loadCardIntoEditor(card) {
+      if (!card) return;
+      els.sourceText.value = card.sourceText || "";
+      state.markedText = card.markedText || "";
+      els.markedEditor.textContent = state.markedText;
+      els.notesText.textContent = card.notes || "可编辑后重新解析";
+      state.units = state.markedText ? parseMarkedText(state.markedText) : [];
+      state.units.forEach((unit) => { unit.source = card.source || "ai"; });
+      state.activeCardId = card.id;
+      applyMode();
+      resetReciteHelpForCurrentMaterial();
+    }
+
+    function markCardRecited(card) {
+      if (!card) return;
+      card.lastRecitedAt = Date.now();
+      card.updatedAt = Date.now();
+      saveCards();
+    }
+
+    function exportCardsFile() {
+      if (!state.cards.length) {
+        toast("没有可导出的缓存");
+        return;
+      }
+      const payload = {
+        type: "beisong-wanxing-cards",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        cards: state.cards
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `beisong-cards-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast("缓存文件已导出");
+    }
+
+    async function importCardsFile(file) {
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const incoming = Array.isArray(parsed) ? parsed : Array.isArray(parsed.cards) ? parsed.cards : [];
+        const existing = new Set(state.cards.map((card) => card.signature));
+        const additions = incoming.map(normalizeCard).filter(Boolean).filter((card) => {
+          if (existing.has(card.signature)) return false;
+          existing.add(card.signature);
+          return true;
+        });
+        if (additions.length) {
+          state.cards = [...additions, ...state.cards];
+          saveCards();
+        }
+        toast(additions.length ? `已导入 ${additions.length} 张新卡片` : "没有发现新的不重复卡片");
+      } catch {
+        toast("导入失败，请选择有效 JSON 文件");
+      } finally {
+        els.importCardsFile.value = "";
+      }
+    }
+
+    function saveSettings() {
+      const settings = {
+        apiKey: els.apiKey.value,
+        modelName: els.modelName.value,
+        apiEndpoint: els.apiEndpoint.value,
+        apiMode: els.apiModeTabs.dataset.apiMode || "developer",
+        theme: document.body.dataset.theme || "light",
+        readerFontSize: els.fontSizeControl.value
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    }
+
+    function loadSettings() {
+      try {
+        const settings = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        if (typeof settings.apiKey === "string") els.apiKey.value = settings.apiKey;
+        if (typeof settings.modelName === "string" && settings.modelName) els.modelName.value = settings.modelName;
+        if (typeof settings.apiEndpoint === "string" && settings.apiEndpoint) els.apiEndpoint.value = settings.apiEndpoint;
+        document.body.dataset.theme = settings.theme === "dark" ? "dark" : "light";
+        if (settings.readerFontSize) setReaderFontSize(settings.readerFontSize, false);
+        setApiMode(settings.apiMode === "custom" ? "custom" : "developer", false);
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+        setApiMode("developer", false);
+      }
+    }
+
+    function toggleTheme() {
+      document.body.dataset.theme = document.body.dataset.theme === "dark" ? "light" : "dark";
+      saveSettings();
+      toast(document.body.dataset.theme === "dark" ? "已切换深色模式" : "已切换浅色模式");
+    }
+
+    function setReaderFontSize(value, shouldSave = true) {
+      const size = Math.min(36, Math.max(15, Number(value) || 21));
+      els.fontSizeControl.value = String(size);
+      document.documentElement.style.setProperty("--reader-font-size", `${size}px`);
+      if (shouldSave) saveSettings();
+    }
+
+    function setApiMode(mode, shouldSave = true) {
+      const normalized = mode === "custom" ? "custom" : "developer";
+      els.apiModeTabs.dataset.apiMode = normalized;
+      els.apiModeTabs.style.setProperty("--active-index", normalized === "custom" ? 1 : 0);
+      els.apiModeTabs.querySelectorAll("button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.apiMode === normalized);
+      });
+      els.customApiFields.hidden = normalized !== "custom";
+      if (shouldSave) saveSettings();
+    }
+
+    function switchPage(page) {
+      state.page = page;
+      document.body.dataset.page = page;
+      els.pageSwitch.dataset.page = page;
+      els.cardsTab.classList.toggle("active", page === "cards");
+      els.configTab.classList.toggle("active", page === "config");
+      els.reciteTab.classList.toggle("active", page === "recite");
+      els.cardsView.classList.toggle("active", page === "cards");
+      els.configView.classList.toggle("active", page === "config");
+      els.reciteView.classList.toggle("active", page === "recite");
+      if (page === "recite" && !state.units.length) {
+        renderReader();
+      }
+      if (page === "recite" && state.activeCardId) {
+        markCardRecited(state.cards.find((card) => card.id === state.activeCardId));
+      }
+      if (page === "recite") syncReciteHelpVisibility();
+    }
+
+    function splitMarkedSegment(raw, type, units) {
+      const parts = raw.includes("|")
+        ? raw.split("|").map((part) => ({ text: part, kind: /^\s+$/u.test(part) ? "space" : "raw" }))
+        : segmentForAlternatingMask(raw);
+      for (const partInfo of parts) {
+        const part = typeof partInfo === "string" ? partInfo : partInfo.text;
+        if (part === "") continue;
+        if (part.includes("\n")) {
+          const pieces = part.split(/(\n+)/);
+          for (const piece of pieces) {
+            if (!piece) continue;
+            if (/^\n+$/.test(piece)) {
+              units.push({
+                id: units.length,
+                text: piece,
+                type: "linebreak",
+                hidden: false,
+                manual: false,
+                important: false,
+                source: "ai"
+              });
+            } else {
+              splitMarkedSegment(piece, type, units);
+            }
+          }
+          continue;
+        }
+        const kind = typeof partInfo === "string" ? "raw" : partInfo.kind;
+        const protectedToken = kind === "keep" || kind === "plain" || isPunctuationToken(part) || isStructureToken(part) || isExplicitLogicToken(part);
+        const normalizedType = type !== "keep" && isWeakFunctionToken(part) ? "plain" : type;
+        if (kind === "space" || /^\s+$/u.test(part)) {
+          units.push({
+            id: units.length,
+            text: part,
+            type: "space",
+            hidden: false,
+            manual: false,
+            important: false,
+            source: "ai"
+          });
+          continue;
+        }
+        units.push({
+          id: units.length,
+          text: part,
+          type: protectedToken ? "keep" : normalizedType,
+          hidden: false,
+          manual: false,
+          important: false,
+          source: "ai"
+        });
+      }
+    }
+
+    function findNextSpecial(text, start) {
+      const candidates = ["⟦", "⟬", "⟪"]
+        .map((token) => text.indexOf(token, start))
+        .filter((pos) => pos !== -1);
+      return candidates.length ? Math.min(...candidates) : text.length;
+    }
+
+    function parseMarkedText(markedText) {
+      const units = [];
+      let index = 0;
+
+      while (index < markedText.length) {
+        if (markedText.startsWith("⟦", index)) {
+          const end = markedText.indexOf("⟧", index + 1);
+          if (end === -1) {
+            splitMarkedSegment(markedText.slice(index), "plain", units);
+            break;
+          }
+          splitMarkedSegment(markedText.slice(index + 1, end), "keep", units);
+          index = end + 1;
+          continue;
+        }
+
+        if (markedText.startsWith("⟬", index)) {
+          const end = markedText.indexOf("⟭", index + 1);
+          if (end === -1) {
+            splitMarkedSegment(markedText.slice(index), "plain", units);
+            break;
+          }
+          splitMarkedSegment(markedText.slice(index + 1, end), "core", units);
+          index = end + 1;
+          continue;
+        }
+
+        if (markedText.startsWith("⟪", index)) {
+          const end = markedText.indexOf("⟫", index + 1);
+          if (end === -1) {
+            splitMarkedSegment(markedText.slice(index), "plain", units);
+            break;
+          }
+          splitMarkedSegment(markedText.slice(index + 1, end), "broad", units);
+          index = end + 1;
+          continue;
+        }
+
+        const next = findNextSpecial(markedText, index);
+        splitMarkedSegment(markedText.slice(index, next), "plain", units);
+        index = next;
+      }
+
+      return units;
+    }
+
+    function defaultHidden(unit) {
+      if (unit.type === "keep" || unit.type === "space" || unit.type === "linebreak") return false;
+      if (state.mode === "none") return false;
+      if (state.mode === "level1") return unit.type === "core";
+      if (state.mode === "level2") {
+        if (unit.source === "alternate") return unit.type === "broad";
+        return unit.type === "core" || unit.type === "broad";
+      }
+      if (state.mode === "important") return unit.important;
+      if (state.mode === "all") return true;
+      return false;
+    }
+
+    function applyMode() {
+      for (const unit of state.units) {
+        unit.hidden = defaultHidden(unit);
+        unit.manual = false;
+      }
+      renderReader();
+    }
+
+    function needsWordSpace(left, right) {
+      const a = left.trim();
+      const b = right.trim();
+      if (!a || !b) return false;
+      return /[A-Za-z0-9]/.test(a[a.length - 1]) && /[A-Za-z0-9]/.test(b[0]);
+    }
+
+    function unitClass(unit) {
+      const classes = ["unit"];
+      if (unit.type === "keep") classes.push("keep");
+      if (unit.type === "space") classes.push("space");
+      if (unit.type !== "keep" && unit.type !== "space" && unit.type !== "linebreak") classes.push("maskable", unit.type);
+      if (unit.important) classes.push("important");
+      if (unit.hidden) classes.push("hidden");
+      if (unit.manual && !unit.hidden) classes.push("revealed");
+      if (unit.manual && unit.hidden) classes.push("manual-hidden");
+      return classes.join(" ");
+    }
+
+    function renderReader() {
+      if (!state.units.length) {
+        els.reader.innerHTML = `<div class="empty-reader">还没有可背诵内容。请回到配置页输入语料并生成或解析标注。</div>`;
+        return;
+      }
+
+      const html = state.units.map((unit, index) => {
+        if (unit.type === "linebreak") {
+          return "<br>".repeat(Math.max(1, unit.text.length));
+        }
+        const previous = state.units[index - 1];
+        const gap = index > 0 && previous?.type !== "space" && unit.type !== "space" && needsWordSpace(previous.text, unit.text) ? " " : "";
+        const data = unit.type === "keep" || unit.type === "space" || unit.type === "linebreak" ? "" : ` data-id="${unit.id}"`;
+        return `${gap}<span class="${unitClass(unit)}"${data}>${escapeHtml(unit.text)}</span>`;
+      }).join("");
+
+      els.reader.innerHTML = html;
+    }
+
+    function loadMarkedText(markedText, message, notes = "", source = "ai") {
+      state.markedText = markedText.trim();
+      els.markedEditor.textContent = state.markedText;
+      els.notesText.textContent = notes || "可编辑后重新解析";
+      state.units = parseMarkedText(state.markedText);
+      state.units.forEach((unit) => {
+        unit.source = source;
+      });
+      applyMode();
+      cacheCurrentCard(source);
+      resetReciteHelpForCurrentMaterial();
+      setStatus(message);
+    }
+
+    function parseEditor() {
+      const text = els.markedEditor.textContent.trim();
+      if (!text) {
+        setStatus("没有可解析的标注结果", "warn");
+        toast("请先生成或粘贴标注结果");
+        return false;
+      }
+      loadMarkedText(text, "已解析标注结果");
+      return true;
+    }
+
+    function normalizeSourceText(source) {
+      return source
+        .replace(/\r\n?/g, "\n")
+        .replace(/```[\s\S]*?```/g, (block) => block.replace(/```[^\n]*\n?|\n?```/g, ""))
+        .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+        .replace(/^\s{0,3}>\s?/gm, "")
+        .replace(/\*\*([^*]+)\*\*/g, "$1")
+        .replace(/__([^_]+)__/g, "$1")
+        .replace(/\*([^*]+)\*/g, "$1")
+        .replace(/_([^_]+)_/g, "$1")
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        .replace(/<[^>]+>/g, "")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
+    function mockMarkedText(source) {
+      const text = normalizeSourceText(source);
+      if (!text) return "";
+      let maskIndex = 0;
+      return text.split(/\n/).map((line) => segmentForAlternatingMask(line).map((token) => {
+        if (token.kind === "space") return token.text;
+        if (token.kind === "keep") return `⟦${token.text}⟧`;
+        if (token.kind === "plain" || isWeakFunctionToken(token.text) || isWeakCjkFunctionToken(token.text)) return token.text;
+        const wrapped = maskIndex % 2 === 0 ? `⟬${token.text}⟭` : `⟪${token.text}⟫`;
+        maskIndex += 1;
+        return wrapped;
+      }).join("|").replace(/\|+\n/g, "\n").replace(/\|{2,}/g, "|")).join("\n");
+    }
+
+    function segmentForAlternatingMask(line) {
+      const tokens = [];
+      const pattern = /(\s+|[→←↑↓⇒⇔]+|[-*•·]|(?:^|\s)\d+[.、)）](?=\s|$)|\p{N}+(?:[.,:/-]\p{N}+)*(?:st|nd|rd|th|%|％)?|[\p{Script=Latin}\p{M}]+(?:['’.-][\p{Script=Latin}\p{M}]+)*|[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー]+|[，。！？；：、,.!?;:()[\]（）「」『』《》〈〉“”"']|.)/giu;
+      const parts = line.match(pattern) || [];
+      for (const rawPart of parts) {
+        const leadingSpace = rawPart.match(/^\s+/u)?.[0] || "";
+        const body = leadingSpace ? rawPart.slice(leadingSpace.length) : rawPart;
+        if (leadingSpace) tokens.push({ text: leadingSpace, kind: "space" });
+        if (!body) continue;
+        if (/^\s+$/u.test(body)) tokens.push({ text: body, kind: "space" });
+        else if (/^(?:[-*•·]|[→←↑↓⇒⇔]+|\d+[.、)）])$/u.test(body)) tokens.push({ text: body, kind: "keep" });
+        else if (isPunctuationToken(body)) tokens.push({ text: body, kind: "plain" });
+        else if (/^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー]+$/u.test(body)) tokens.push(...segmentCjkLikeRun(body));
+        else tokens.push({ text: body, kind: "mask" });
+      }
+      return tokens;
+    }
+
+    const CJK_PROPER_NAME_TERMS = [
+      "马克思主义", "弗洛伊德主义", "亚里士多德", "弗洛伊德", "马克思", "恩格斯", "列宁", "斯大林", "康德", "黑格尔", "柏拉图",
+      "苏格拉底", "达尔文", "牛顿", "爱因斯坦", "卢梭", "伏尔泰", "孟德斯鸠", "莎士比亚", "但丁", "歌德", "孔子", "孟子", "老子", "庄子",
+      "荀子", "韩非子", "董仲舒", "朱熹", "王阳明", "毛泽东", "邓小平", "孙中山", "鲁迅"
+    ].sort((a, b) => b.length - a.length);
+
+    function splitByKnownCjkNames(text, segmenter) {
+      const segments = [];
+      let index = 0;
+      const pushFallback = (value) => {
+        if (!value) return;
+        if (segmenter) {
+          segments.push(...Array.from(segmenter.segment(value)).map((item) => item.segment).filter(Boolean));
+        } else {
+          segments.push(...Array.from(value));
+        }
+      };
+
+      while (index < text.length) {
+        const matched = CJK_PROPER_NAME_TERMS.find((name) => text.startsWith(name, index));
+        if (matched) {
+          segments.push(matched);
+          index += matched.length;
+          continue;
+        }
+        let next = text.length;
+        for (const name of CJK_PROPER_NAME_TERMS) {
+          const pos = text.indexOf(name, index + 1);
+          if (pos !== -1 && pos < next) next = pos;
+        }
+        pushFallback(text.slice(index, next));
+        index = next;
+      }
+      return segments;
+    }
+
+    function segmentCjkLikeRun(text) {
+      const locale = /[\u3040-\u30ffー]/u.test(text) ? "ja" : "zh";
+      const segmenter = typeof Intl !== "undefined" && Intl.Segmenter
+        ? new Intl.Segmenter(locale, { granularity: "word" })
+        : null;
+      return splitByKnownCjkNames(text, segmenter)
+        .filter(Boolean)
+        .map((segment) => ({ text: segment, kind: "mask" }));
+    }
+
+    function isExplicitLogicToken(text) {
+      return /^(?:and|or|nor|but|however|therefore|thus|hence|because|although|though|whereas|if|then|so|yet|nevertheless|meanwhile|first|second|third|finally|と|や|及び|または|しかし|だから|そして|因此|所以|因为|虽然|但是|然而|并且|或者|以及|首先|其次|最后)$/iu.test(text.trim());
+    }
+
+    function isWeakFunctionToken(text) {
+      return /^(?:the|a|an|of|in|on|to|for|with|by|at|from|as|into|onto|over|under|between|among|about|than|via|per|is|are|was|were|be|been|being|do|does|did|have|has|had|can|could|may|might|will|would|should|的|了|在|是|有|把|被|以|于|为|之|其|该|这|那)$/iu.test(text.trim());
+    }
+
+    function isConnectorToken(text) {
+      return isExplicitLogicToken(text);
+    }
+
+    function isWeakCjkFunctionToken(text) {
+      return /^(和|及|与|并|或|以及|且|但|但是|而|并且|或者|的|了|在|是)$/u.test(text.trim());
+    }
+
+    function isNumberLikeToken(text) {
+      return /^\p{N}+(?:[.,:/-]\p{N}+)*(?:st|nd|rd|th|%|％)?$/iu.test(text.trim());
+    }
+
+    function isGenericTimeUnitToken(text) {
+      return /^(?:年|月|日|世纪|年代|时期|时代|century|centuries|year|years|month|months|day|days)$/iu.test(text.trim());
+    }
+
+    function isPunctuationToken(text) {
+      return /^[，。！？；：、,.!?;:()[\]（）「」『』《》〈〉“”"'—–]+$/u.test(text.trim());
+    }
+
+    function isStructureToken(text) {
+      return /^(?:[-*•·]|[→←↑↓⇒⇔]+|\d+[.、)）])$/u.test(text.trim());
+    }
+
+    function tokenLanguage(text) {
+      if (/[\u3040-\u30ffー]/u.test(text)) return "ja";
+      if (/\p{Script=Han}/u.test(text)) return "zh";
+      if (/[\p{Script=Latin}]/u.test(text)) return "latin";
+      if (/\p{N}/u.test(text)) return "number";
+      return "other";
+    }
+
+    function buildLocalChunks(source) {
+      const chunks = [];
+      const lines = normalizeSourceText(source).split("\n");
+      lines.forEach((line, lineIndex) => {
+        const lineTokens = mergeProperNameTokens(segmentForAlternatingMask(line));
+        for (const token of lineTokens) {
+          const text = token.text;
+          chunks.push({
+            id: chunks.length,
+            text,
+            kind: token.kind,
+            lang: token.kind === "space" ? "space" : token.kind === "keep" || token.kind === "plain" ? "structure" : tokenLanguage(text),
+            line: lineIndex,
+            label: token.kind === "keep" || token.kind === "plain" || token.kind === "space" || isPunctuationToken(text) || isStructureToken(text) || isExplicitLogicToken(text) ? "keep" : "plain"
+          });
+        }
+        if (lineIndex < lines.length - 1) {
+          chunks.push({
+            id: chunks.length,
+            text: "\n",
+            kind: "linebreak",
+            lang: "linebreak",
+            line: lineIndex,
+            label: "keep"
+          });
+        }
+      });
+      return chunks.map((chunk, index) => ({ ...chunk, id: index }));
+    }
+
+    function mergeProperNameTokens(tokens) {
+      const merged = [];
+      let index = 0;
+      while (index < tokens.length) {
+        const first = tokens[index];
+        if (first?.kind !== "mask" || !/^\p{Lu}[\p{Script=Latin}\p{M}.'’-]*$/u.test(first.text)) {
+          merged.push(first);
+          index += 1;
+          continue;
+        }
+        let cursor = index;
+        let text = first.text;
+        let wordCount = 1;
+        while (
+          cursor + 2 < tokens.length &&
+          tokens[cursor + 1].kind === "space" &&
+          tokens[cursor + 2].kind === "mask" &&
+          /^\p{Lu}[\p{Script=Latin}\p{M}.'’-]*$/u.test(tokens[cursor + 2].text)
+        ) {
+          text += tokens[cursor + 1].text + tokens[cursor + 2].text;
+          cursor += 2;
+          wordCount += 1;
+        }
+        if (wordCount >= 2) {
+          merged.push({ text, kind: "mask" });
+          index = cursor + 1;
+        } else {
+          merged.push(first);
+          index += 1;
+        }
+      }
+      return merged;
+    }
+
+    function maskableChunks(chunks) {
+      return chunks.filter((chunk) => chunk.text.trim() && chunk.kind !== "space" && chunk.kind !== "linebreak" && chunk.label !== "keep");
+    }
+
+    function compactChunksForAI(chunks) {
+      return chunks
+        .filter((chunk) => chunk.kind !== "space")
+        .map((chunk) => ({
+          id: chunk.id,
+          text: chunk.text,
+          lang: chunk.lang,
+          line: chunk.line,
+          defaultKeep: chunk.label === "keep"
+        }));
+    }
+
+    function sanitizeRanges(ranges, chunks) {
+      const cleaned = [];
+      const maxId = chunks.length - 1;
+      for (const range of Array.isArray(ranges) ? ranges : []) {
+        if (!Array.isArray(range) || range.length < 2) continue;
+        const start = Number(range[0]);
+        const end = Number(range[1]);
+        if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end < start || end > maxId) continue;
+        const slice = chunks.slice(start, end + 1);
+        if (slice.some((chunk) => chunk.kind === "linebreak")) continue;
+        cleaned.push([start, end]);
+      }
+      return cleaned;
+    }
+
+    function isConceptSuffixToken(text) {
+      const value = text.trim();
+      return /^(?:主义|制度|理论|运动|革命|战争|政策|方针|路线|模型|公式|定理|原则|概念|思想|文化|经济|政治|社会|资本|工业|农业|改革|危机|矛盾|原因|结果|影响|意义|特征|特点|性质|背景|措施|体系|结构|阶段|学派|方法|技术|算法|函数|反应|元素|地形|气候|洋流|人口|城市|区域)$/u.test(value);
+    }
+
+    function isLikelyExamAnchorToken(text) {
+      const value = text.trim();
+      if (!value || isWeakExamToken(value) || isGenericTimeUnitToken(value)) return false;
+      if (isNumberLikeToken(value) || isAcronymToken(value) || isCapitalizedContentToken(value)) return true;
+      if (isCjkToken(value) && value.length >= 2 && !isConnectorToken(value) && !isWeakCjkFunctionToken(value)) return true;
+      return false;
+    }
+
+    function normalizeContextualScores(chunks, scores) {
+      chunks.forEach((chunk, index) => {
+        const text = chunk.text.trim();
+        if (isConnectorToken(text) || isWeakFunctionToken(text) || isWeakCjkFunctionToken(text)) {
+          scores.set(chunk.id, Math.min(scores.get(chunk.id) || 0, 0.4));
+        }
+        if (isGenericTimeUnitToken(text)) {
+          const prev = chunks[index - 1];
+          const next = chunks[index + 1];
+          const numericNeighbor = [prev, next].find((item) => item && isNumberLikeToken(item.text));
+          const unitScore = scores.get(chunk.id) || 0;
+          if (numericNeighbor && maskableChunks([numericNeighbor]).length && unitScore > 0) {
+            scores.set(numericNeighbor.id, Math.max(scores.get(numericNeighbor.id) || 0, unitScore + 2.6));
+            scores.set(chunk.id, Math.min(unitScore, 0.35));
+          } else {
+            scores.set(chunk.id, Math.min(unitScore, 0.65));
+          }
+        }
+        if (isConceptSuffixToken(text)) {
+          const prev = chunks[index - 1];
+          const next = chunks[index + 1];
+          const anchorNeighbor = [prev, next].find((item) => item && isLikelyExamAnchorToken(item.text));
+          const suffixScore = scores.get(chunk.id) || 0;
+          if (anchorNeighbor && suffixScore > 0) {
+            scores.set(anchorNeighbor.id, Math.max(scores.get(anchorNeighbor.id) || 0, suffixScore + 1.4));
+            if (text.length <= 2) scores.set(chunk.id, Math.min(suffixScore, 1.2));
+          } else if (text.length <= 2) {
+            scores.set(chunk.id, Math.min(suffixScore, 1.5));
+          }
+        }
+      });
+      return scores;
+    }
+
+    function scoreAIRecommendations(chunks, parsed) {
+      const scores = new Map();
+      const add = (ranges, weight) => {
+        for (const [start, end] of sanitizeRanges(ranges, chunks)) {
+          for (let id = start; id <= end; id += 1) {
+            const chunk = chunks[id];
+            if (!chunk || !maskableChunks([chunk]).length) continue;
+            scores.set(id, Math.max(scores.get(id) || 0, weight));
+          }
+        }
+      };
+      for (const item of Array.isArray(parsed?.priority) ? parsed.priority : []) {
+        const id = Number(item?.id);
+        const score = Number(item?.score);
+        const chunk = chunks[id];
+        if (!Number.isInteger(id) || !chunk || !maskableChunks([chunk]).length) continue;
+        if (!Number.isFinite(score)) continue;
+        scores.set(id, Math.max(scores.get(id) || 0, Math.max(0, Math.min(100, score)) / 10));
+      }
+      add(parsed?.broad, 3);
+      add(parsed?.core, 7);
+      return normalizeContextualScores(chunks, scores);
+    }
+
+    function isCjkToken(text) {
+      return /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー]+$/u.test(text.trim());
+    }
+
+    function isAcronymToken(text) {
+      return /^(?:[A-Z]{2,}|[A-Z](?:\.[A-Z])+\.?)(?:[-_/]?[A-Z0-9]+)*$/u.test(text.trim());
+    }
+
+    function isCapitalizedContentToken(text) {
+      const value = text.trim();
+      if (!/[A-Za-z]/.test(value)) return false;
+      if (/^(?:The|A|An|And|Or|But|Of|In|On|To|For|With|By)$/u.test(value)) return false;
+      return /^\p{Lu}[\p{Script=Latin}\p{M}.'’\-]*(?:\s+\p{Lu}[\p{Script=Latin}\p{M}.'’\-]*)*$/u.test(value);
+    }
+
+    function hasHighYieldCjkShape(text) {
+      const value = text.trim();
+      if (!isCjkToken(value)) return false;
+      return /(?:主义|革命|战争|运动|制度|政策|法案|条约|理论|模型|公式|定理|原则|概念|思想|文化|经济|政治|社会|民族|国家|政权|政府|市场|资本|工业|农业|改革|危机|矛盾|原因|结果|影响|意义|特征|特点|性质|背景|措施|路线|方针|核心|中心|体系|结构|阶段|世纪|年代|王朝|时代|学派|方法|技术|算法|函数|细胞|蛋白|基因|能量|反应|元素|地形|气候|洋流|人口|城市|区域)$/u.test(value);
+    }
+
+    function isWeakExamToken(text) {
+      const value = text.trim();
+      if (!value) return true;
+      if (isConnectorToken(value) || isWeakFunctionToken(value) || isWeakCjkFunctionToken(value) || isPunctuationToken(value) || isStructureToken(value)) return true;
+      if (isGenericTimeUnitToken(value)) return true;
+      if (/^(?:是|有|在|对|以|把|被|从|向|为|于|其|该|这|那|此|之|者|中|上|下|内|外|前|后|里|方面|进行|具有|通过|由于|因此|所以|如果|因为|虽然|以及|并且|或者|重要|不同|主要|一般|基本|相关|一定|很多|一些|一种|这个|这些|那些|问题|情况|内容|作用|影响|意义|特点|特征|原因|结果|措施|背景|形成|出现|发展|变化|提高|降低|增加|减少|表现|体现|说明|反映|推动|促进|导致)$/u.test(value)) return true;
+      if (/^(?:is|are|was|were|be|been|being|do|does|did|have|has|had|make|made|get|got|use|used|can|could|may|might|will|would|should|important|different|main|major|many|some|also|very|more|most|less|thing|things|issue|issues|effect|effects|role|roles)$/iu.test(value)) return true;
+      return false;
+    }
+
+    function contextualExamScore(chunk, chunks = []) {
+      const text = chunk.text.trim();
+      if (!text) return 0;
+      let score = 0;
+      const index = chunks.findIndex((item) => item.id === chunk.id);
+      const prev = index >= 0 ? chunks[index - 1] : null;
+      const next = index >= 0 ? chunks[index + 1] : null;
+      const near = [prev, next].filter(Boolean);
+
+      if (isNumberLikeToken(text)) {
+        score += 4.2;
+        if (near.some((item) => isGenericTimeUnitToken(item.text))) score += 4.8;
+        if (/[％%]|\d[.,:]\d/u.test(text)) score += 1.4;
+      }
+      if (isAcronymToken(text)) score += 5.8;
+      else if (isCapitalizedContentToken(text)) score += 3.4;
+
+      if (hasHighYieldCjkShape(text)) score += 4.2;
+      else if (isCjkToken(text) && text.length >= 2 && text.length <= 8) score += 1.7;
+      if (isCjkToken(text) && text.length === 1) score -= 1.5;
+
+      if (/\d/u.test(text) && /(?:年|月|日|世纪|年代|century|year|%|％|kg|km|m²|℃|°C)/iu.test(text)) score += 2.2;
+      if (/^[\p{Script=Latin}\p{M}]+(?:[-'][\p{Script=Latin}\p{M}]+)+$/u.test(text)) score += 1.0;
+      if (text.length >= 4 && !isCjkToken(text)) score += 1.0;
+
+      if (near.some((item) => isConceptSuffixToken(item.text)) && isLikelyExamAnchorToken(text)) score += 2.6;
+      if (isConceptSuffixToken(text) && text.length <= 2) score -= 2.4;
+      if (isConceptSuffixToken(text) && near.some((item) => isLikelyExamAnchorToken(item.text))) score -= 1.2;
+      if (/^(?:[一二三四五六七八九十]+|第[一二三四五六七八九十]+)$/u.test(text)) score += 2.2;
+
+      if (isGenericTimeUnitToken(text)) score -= 6.5;
+      if (isWeakExamToken(text)) score -= 5.6;
+      return score;
+    }
+
+    function localImportanceScore(chunk, chunks = []) {
+      return contextualExamScore(chunk, chunks);
+    }
+
+    function distancePenalty(chunk, pickedIds, radius, orderIndex = new Map()) {
+      let penalty = 0;
+      const currentOrder = orderIndex.has(chunk.id) ? orderIndex.get(chunk.id) : chunk.id;
+      for (const id of pickedIds) {
+        const pickedOrder = orderIndex.has(id) ? orderIndex.get(id) : id;
+        const distance = Math.abs(currentOrder - pickedOrder);
+        if (distance === 0) penalty += 100;
+        else if (distance <= radius) penalty += (radius - distance + 1) * 2.3;
+      }
+      return penalty;
+    }
+
+    function computeLangQuotas(maskable, targetCount, unavailable = new Set()) {
+      const counts = new Map();
+      let total = 0;
+      for (const chunk of maskable) {
+        if (unavailable.has(chunk.id)) continue;
+        counts.set(chunk.lang, (counts.get(chunk.lang) || 0) + 1);
+        total += 1;
+      }
+      const langs = Array.from(counts.keys()).sort((a, b) => counts.get(b) - counts.get(a));
+      const quotas = new Map();
+      let assigned = 0;
+      for (const lang of langs) {
+        const quota = Math.max(1, Math.floor(targetCount * counts.get(lang) / Math.max(1, total)));
+        quotas.set(lang, Math.min(quota, counts.get(lang)));
+        assigned += quotas.get(lang);
+      }
+      while (assigned > targetCount) {
+        const lang = langs.slice().sort((a, b) => quotas.get(b) - quotas.get(a))[0];
+        if (!lang || quotas.get(lang) <= 0) break;
+        quotas.set(lang, quotas.get(lang) - 1);
+        assigned -= 1;
+      }
+      while (assigned < targetCount) {
+        const lang = langs.find((item) => quotas.get(item) < counts.get(item));
+        if (!lang) break;
+        quotas.set(lang, quotas.get(lang) + 1);
+        assigned += 1;
+      }
+      return quotas;
+    }
+
+    function pickDistributed(maskable, targetCount, scores, alreadyPicked = new Set(), options = {}) {
+      const picked = [];
+      const pickedIds = new Set(alreadyPicked);
+      const unavailable = new Set(alreadyPicked);
+      const radius = options.radius ?? 3;
+      const minAIScore = options.minAIScore ?? 0;
+      const orderIndex = options.orderIndex || new Map();
+      const quotas = computeLangQuotas(maskable, targetCount, unavailable);
+      const selectedByLang = new Map();
+      const candidates = maskable
+        .filter((chunk) => !unavailable.has(chunk.id))
+        .map((chunk) => ({
+          chunk,
+          base: (scores.get(chunk.id) || 0) + localImportanceScore(chunk, options.contextChunks || maskable)
+        }))
+        .filter((item) => (scores.get(item.chunk.id) || 0) >= minAIScore || !options.requireAIScore)
+        .filter((item) => !isWeakExamToken(item.chunk.text) || item.base >= 7.8)
+        .filter((item) => item.base > -0.5)
+        .sort((a, b) => b.base - a.base || a.chunk.id - b.chunk.id);
+
+      const choosePass = (strictDistance) => {
+        let changed = false;
+        for (const item of candidates) {
+          if (picked.length >= targetCount) return changed;
+          const chunk = item.chunk;
+          if (pickedIds.has(chunk.id)) continue;
+          if ((selectedByLang.get(chunk.lang) || 0) >= (quotas.get(chunk.lang) || 0)) continue;
+          if (strictDistance && distancePenalty(chunk, pickedIds, radius, orderIndex) > 0) continue;
+          picked.push(chunk);
+          pickedIds.add(chunk.id);
+          selectedByLang.set(chunk.lang, (selectedByLang.get(chunk.lang) || 0) + 1);
+          changed = true;
+        }
+        return changed;
+      };
+
+      choosePass(true);
+      if (options.allowRelaxed !== false) {
+        while (picked.length < targetCount && choosePass(false)) {}
+      }
+
+      if (picked.length < targetCount && options.allowFallbackClose !== false) {
+        while (picked.length < targetCount) {
+          const best = candidates
+            .filter((item) => !pickedIds.has(item.chunk.id))
+            .sort((a, b) => {
+              const scoreA = a.base - distancePenalty(a.chunk, pickedIds, radius, orderIndex);
+              const scoreB = b.base - distancePenalty(b.chunk, pickedIds, radius, orderIndex);
+              return scoreB - scoreA || a.chunk.id - b.chunk.id;
+            })[0];
+          if (!best) break;
+          picked.push(best.chunk);
+          pickedIds.add(best.chunk.id);
+        }
+      }
+
+      picked.sort((a, b) => a.id - b.id);
+      return picked.slice(0, targetCount);
+    }
+
+    function applyBalancedLabels(chunks, parsed) {
+      const maskable = maskableChunks(chunks);
+      const scores = scoreAIRecommendations(chunks, parsed);
+      const orderIndex = new Map(maskable.map((chunk, index) => [chunk.id, index]));
+      const coreTarget = Math.round(maskable.length * 0.34);
+      const totalTarget = Math.round(maskable.length * 0.66);
+      const corePicked = pickDistributed(maskable, coreTarget, scores, new Set(), {
+        radius: 1,
+        requireAIScore: true,
+        minAIScore: 2,
+        allowRelaxed: false,
+        allowFallbackClose: false,
+        orderIndex,
+        contextChunks: chunks
+      });
+      if (corePicked.length < Math.ceil(maskable.length * 0.30)) {
+        const corePickedIds = new Set(corePicked.map((chunk) => chunk.id));
+        while (corePicked.length < coreTarget) {
+          const item = maskable
+            .filter((chunk) => !corePickedIds.has(chunk.id))
+            .map((chunk) => ({
+              chunk,
+              score: (scores.get(chunk.id) || 0) + localImportanceScore(chunk, chunks)
+            }))
+            .filter((candidate) => candidate.score >= 2.4 && !isWeakExamToken(candidate.chunk.text) && distancePenalty(candidate.chunk, corePickedIds, 1, orderIndex) === 0)
+            .sort((a, b) => b.score - a.score || a.chunk.id - b.chunk.id)[0];
+          if (!item) break;
+          if (corePicked.length >= coreTarget) break;
+          corePicked.push(item.chunk);
+          corePickedIds.add(item.chunk.id);
+        }
+        corePicked.sort((a, b) => a.id - b.id);
+      }
+      const coreIds = new Set(corePicked.map((chunk) => chunk.id));
+      const broadBlocked = new Set(coreIds);
+      const broadPicked = pickDistributed(maskable, Math.max(0, totalTarget - coreIds.size), scores, broadBlocked, {
+        radius: 2,
+        allowRelaxed: true,
+        allowFallbackClose: true,
+        orderIndex,
+        contextChunks: chunks
+      });
+      const broadIds = new Set(broadPicked.map((chunk) => chunk.id));
+      return chunks.map((chunk) => {
+        if (chunk.label === "keep") return chunk;
+        if (coreIds.has(chunk.id)) return { ...chunk, label: "core" };
+        if (broadIds.has(chunk.id)) return { ...chunk, label: "broad" };
+        return { ...chunk, label: "plain" };
+      });
+    }
+
+    function chunksToMarkedText(chunks) {
+      let text = "";
+      let open = "";
+      const openMark = { core: MARK_CORE_OPEN, broad: MARK_BROAD_OPEN };
+      const closeMark = { core: MARK_CORE_CLOSE, broad: MARK_BROAD_CLOSE };
+      for (const chunk of chunks) {
+        const label = chunk.label;
+        const wrappable = label === "core" || label === "broad";
+        if (!wrappable && open) {
+          text += closeMark[open];
+          open = "";
+        }
+        if (wrappable && open !== label) {
+          if (open) text += closeMark[open];
+          text += openMark[label];
+          open = label;
+        }
+        text += chunk.text;
+      }
+      if (open) text += closeMark[open];
+      return text;
+    }
+
+    function validateMarkedText(markedText, source) {
+      const issues = [];
+      const units = parseMarkedText(markedText);
+      const visibleUnits = units.filter((unit) => unit.text.trim() && unit.type !== "keep" && unit.type !== "space" && unit.type !== "linebreak");
+      const core = visibleUnits.filter((unit) => unit.type === "core").length;
+      const broad = visibleUnits.filter((unit) => unit.type === "broad").length;
+      const keep = units.filter((unit) => unit.type === "keep").length;
+      const sourceDenseLength = source.replace(/\s/g, "").length;
+      const unitRatio = sourceDenseLength ? visibleUnits.length / sourceDenseLength : 0;
+      const coreRatio = visibleUnits.length ? core / visibleUnits.length : 0;
+      const totalRatio = visibleUnits.length ? (core + broad) / visibleUnits.length : 0;
+      const longestUnit = visibleUnits.reduce((max, unit) => Math.max(max, unit.text.trim().length), 0);
+
+      if (visibleUnits.length < 8 && sourceDenseLength >= 20) issues.push("切分单位过少");
+      if (visibleUnits.length >= 8 && coreRatio < 0.28) issues.push("第一层标注太少");
+      if (visibleUnits.length >= 8 && totalRatio < 0.58) issues.push("第二层合计标注太少");
+      if (visibleUnits.length >= 8 && coreRatio > 0.43) issues.push("第一层标注过多");
+      if (visibleUnits.length >= 8 && totalRatio > 0.78) issues.push("第二层合计标注过多");
+      if (keep > Math.max(12, Math.ceil(units.length * 0.34))) issues.push("结构保护过多");
+
+      return {
+        ok: issues.length === 0,
+        issues,
+        ratios: { core: coreRatio, total: totalRatio },
+        unitCount: visibleUnits.length
+      };
+    }
+
+    function extractJsonContent(raw) {
+      const trimmed = raw.trim();
+      if (trimmed.startsWith("```")) {
+        return trimmed
+          .replace(/^```(?:json)?\s*/i, "")
+          .replace(/\s*```$/i, "")
+          .trim();
+      }
+      return trimmed;
+    }
+
+    async function callDeepSeekJson(endpoint, apiKey, payload) {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}${errorText ? `：${errorText.slice(0, 180)}` : ""}`);
+      }
+
+      const data = await response.json();
+      const choice = data.choices && data.choices[0];
+      const finishReason = choice && choice.finish_reason;
+      if (finishReason === "length") {
+        throw new Error("模型输出因长度限制被截断，请缩短语料或分段生成");
+      }
+
+      const content = choice && choice.message && choice.message.content;
+      if (!content) throw new Error("DeepSeek 返回为空");
+
+      try {
+        return JSON.parse(extractJsonContent(content));
+      } catch {
+        throw new Error("DeepSeek 返回内容不是有效 JSON");
+      }
+    }
+
+    async function generateWithDeepSeek() {
+      const source = normalizeSourceText(els.sourceText.value);
+      const apiMode = els.apiModeTabs.dataset.apiMode || "developer";
+      const apiKey = apiMode === "developer" ? DEVELOPER_API_KEY : els.apiKey.value.trim();
+      const endpoint = apiMode === "developer"
+        ? DEVELOPER_API_ENDPOINT
+        : (els.apiEndpoint.value.trim() || "https://api.deepseek.com/chat/completions");
+      const model = apiMode === "developer" ? DEVELOPER_MODEL : (els.modelName.value || "deepseek-v4-flash");
+
+      if (!source) {
+        setStatus("缺少源语料", "warn");
+        toast("请先输入源语料");
+        return;
+      }
+
+      if (!apiKey) {
+        setStatus(apiMode === "developer" ? "开发者 API 尚未配置" : "缺少 DeepSeek API key", "warn");
+        toast(apiMode === "developer" ? "请先在 HTML 中写入开发者 API key" : "请先填写 API key");
+        return;
+      }
+
+      saveSettings();
+      els.generateApi.disabled = true;
+      setProgress("正在清理语料并切分词块", 18);
+      const chunks = buildLocalChunks(source);
+      setProgress("正在调用 DeepSeek 判断核心信息", 42);
+
+      const payload = {
+        model,
+        messages: [
+          { role: "system", content: directMarkPrompt },
+          {
+            role: "user",
+            content: JSON.stringify({
+              source,
+              chunks: compactChunksForAI(chunks)
+            })
+          }
+        ],
+        stream: false,
+        temperature: 0.1,
+        thinking: { type: "disabled" },
+        response_format: { type: "json_object" }
+      };
+
+      try {
+        const parsed = await callDeepSeekJson(endpoint, apiKey, payload);
+        setProgress("正在按比例和位置重排遮盖", 76);
+        const balancedChunks = applyBalancedLabels(chunks, parsed);
+        const markedText = chunksToMarkedText(balancedChunks);
+        let validation = validateMarkedText(markedText, source);
+
+        const note = `已校验：一层 ${Math.round(validation.ratios.core * 100)}%，二层合计 ${Math.round(validation.ratios.total * 100)}%，词元 ${validation.unitCount}${validation.ok ? "" : "，建议检查标注结果"}`;
+        loadMarkedText(markedText, "已生成标注，已进入背诵页", parsed.notes ? `${parsed.notes}；${note}` : note);
+        finishProgress(`已生成：一层 ${Math.round(validation.ratios.core * 100)}%，二层 ${Math.round(validation.ratios.total * 100)}%`);
+        switchPage("recite");
+      } catch (error) {
+        setStatus(`生成失败：${error.message}`, "error");
+        toast("生成失败，请查看状态栏");
+      } finally {
+        els.generateApi.disabled = false;
+      }
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      const buttons = Array.from(els.modeTabs.querySelectorAll("button"));
+      buttons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.mode === mode);
+      });
+      els.modeTabs.style.setProperty("--active-index", Math.max(0, buttons.findIndex((button) => button.dataset.mode === mode)));
+      applyMode();
+    }
+
+    function toggleUnitByElement(element, hiddenValue) {
+      const unitElement = element.closest(".unit[data-id]");
+      if (!unitElement) return;
+      const id = Number(unitElement.dataset.id);
+      if (state.touchedDuringDrag.has(id)) return;
+      const unit = state.units[id];
+      if (!unit || unit.type === "keep") return;
+      unit.hidden = typeof hiddenValue === "boolean" ? hiddenValue : !unit.hidden;
+      unit.manual = true;
+      state.touchedDuringDrag.add(id);
+      renderReader();
+    }
+
+    function toggleImportantByElement(element, importantValue) {
+      const unitElement = element.closest(".unit[data-id]");
+      if (!unitElement) return;
+      const id = Number(unitElement.dataset.id);
+      if (state.touchedDuringDrag.has(id)) return;
+      const unit = state.units[id];
+      if (!unit || unit.type === "keep") return;
+      unit.important = typeof importantValue === "boolean" ? importantValue : !unit.important;
+      if (state.mode === "important") {
+        unit.hidden = unit.important;
+      }
+      state.touchedDuringDrag.add(id);
+      renderReader();
+    }
+
+    function finishPointerGesture(event) {
+      if (state.longPressTimer) {
+        window.clearTimeout(state.longPressTimer);
+        state.longPressTimer = 0;
+      }
+      if (event && state.dragging) event.preventDefault();
+      if (event && state.markDragging) event.preventDefault();
+      state.dragging = false;
+      state.markDragging = false;
+      state.longPressFired = false;
+      state.pointerStart = null;
+      state.scrollingReader = false;
+      state.touchedDuringDrag.clear();
+      clearSelection();
+    }
+
+    function clearSelection() {
+      const selection = window.getSelection && window.getSelection();
+      if (selection && selection.removeAllRanges) selection.removeAllRanges();
+    }
+
+    els.pageSwitch.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-page]");
+      if (!button) return;
+      switchPage(button.dataset.page);
+    });
+
+    els.backConfig?.addEventListener("click", () => switchPage("config"));
+    els.parseAndRecite.addEventListener("click", () => {
+      if (parseEditor()) switchPage("recite");
+    });
+
+    els.cardsList.addEventListener("click", (event) => {
+      const actionButton = event.target.closest("button[data-card-action]");
+      if (!actionButton) return;
+      const cardElement = actionButton.closest(".cache-card");
+      const card = state.cards.find((item) => item.id === cardElement?.dataset.cardId);
+      if (!card) return;
+      const action = actionButton.dataset.cardAction;
+      if (action === "delete") {
+        state.cards = state.cards.filter((item) => item.id !== card.id);
+        if (state.activeCardId === card.id) state.activeCardId = "";
+        saveCards();
+        toast("已删除卡片");
+        return;
+      }
+      loadCardIntoEditor(card);
+      if (action === "config") {
+        switchPage("config");
+      } else if (action === "recite") {
+        switchPage("recite");
+      }
+    });
+
+    els.exportCards.addEventListener("click", exportCardsFile);
+    els.importCards.addEventListener("click", () => els.importCardsFile.click());
+    els.importCardsFile.addEventListener("change", () => importCardsFile(els.importCardsFile.files[0]));
+    els.clearCards.addEventListener("click", () => {
+      if (!state.cards.length) {
+        toast("没有可清除的缓存");
+        return;
+      }
+      if (!window.confirm("确定清除所有缓存卡片吗？")) return;
+      state.cards = [];
+      state.activeCardId = "";
+      saveCards();
+      toast("缓存已清除");
+    });
+
+    els.themeToggle.addEventListener("click", toggleTheme);
+    els.apiKey.addEventListener("input", saveSettings);
+    els.modelName.addEventListener("input", saveSettings);
+    els.apiEndpoint.addEventListener("input", saveSettings);
+    els.fontSizeControl.addEventListener("input", () => setReaderFontSize(els.fontSizeControl.value));
+
+    els.apiModeTabs.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-api-mode]");
+      if (!button) return;
+      setApiMode(button.dataset.apiMode);
+    });
+
+    els.toggleKey.addEventListener("click", () => {
+      els.apiKey.type = els.apiKey.type === "password" ? "text" : "password";
+      toast(els.apiKey.type === "password" ? "API key 已隐藏" : "API key 已显示");
+    });
+
+    els.clearSource.addEventListener("click", () => {
+      els.sourceText.value = "";
+      setStatus("源语料已清空", "warn");
+    });
+
+    els.mockGenerate.addEventListener("click", () => {
+      const marked = mockMarkedText(els.sourceText.value);
+      if (!marked) {
+        setStatus("缺少源语料", "warn");
+        toast("请先输入源语料");
+        return;
+      }
+      loadMarkedText(marked, "已生成隔字标注", "", "alternate");
+      switchPage("recite");
+    });
+
+    els.generateApi.addEventListener("click", generateWithDeepSeek);
+
+    els.copyMarked.addEventListener("click", async () => {
+      const text = els.markedEditor.textContent.trim();
+      if (!text) {
+        toast("没有可复制的标注");
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      toast("标注已复制");
+    });
+
+    els.reciteView.addEventListener("pointerdown", () => {
+      dismissReciteHelp();
+    }, { capture: true });
+
+    els.modeTabs.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-mode]");
+      if (!button) return;
+      setMode(button.dataset.mode);
+    });
+
+    els.revealAll.addEventListener("click", () => {
+      for (const unit of state.units) {
+        unit.hidden = false;
+        unit.manual = unit.type !== "keep";
+      }
+      renderReader();
+    });
+
+    els.resetMode.addEventListener("click", applyMode);
+
+    els.reader.addEventListener("contextmenu", (event) => {
+      if (event.target.closest(".unit[data-id]")) event.preventDefault();
+    });
+
+    els.reader.addEventListener("pointerdown", (event) => {
+      const unitElement = event.target.closest(".unit[data-id]");
+      if (!unitElement) return;
+      const unit = state.units[Number(unitElement.dataset.id)];
+      if (!unit) return;
+      state.dragging = false;
+      state.markDragging = false;
+      state.longPressFired = false;
+      state.scrollingReader = false;
+      state.pointerStart = { x: event.clientX, y: event.clientY, id: Number(unitElement.dataset.id) };
+      state.dragHiddenValue = !unit.hidden;
+      state.dragImportantValue = !unit.important;
+      state.touchedDuringDrag.clear();
+      window.clearTimeout(state.longPressTimer);
+      state.longPressTimer = window.setTimeout(() => {
+        state.longPressFired = true;
+        state.markDragging = true;
+        state.dragging = false;
+        state.touchedDuringDrag.clear();
+        clearSelection();
+        toggleImportantByElement(unitElement, state.dragImportantValue);
+        toast(state.dragImportantValue ? "已标为重点" : "已取消重点");
+      }, 450);
+      if (event.pointerType !== "touch") {
+        event.preventDefault();
+        clearSelection();
+        els.reader.setPointerCapture(event.pointerId);
+      }
+    });
+
+    els.reader.addEventListener("pointermove", (event) => {
+      if (!state.pointerStart && !state.dragging && !state.markDragging) return;
+      if (state.scrollingReader) return;
+      const distance = state.pointerStart
+        ? Math.hypot(event.clientX - state.pointerStart.x, event.clientY - state.pointerStart.y)
+        : 0;
+      const dx = state.pointerStart ? event.clientX - state.pointerStart.x : 0;
+      const dy = state.pointerStart ? event.clientY - state.pointerStart.y : 0;
+
+      if (event.pointerType === "touch" && !state.longPressFired && !state.dragging && Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.25) {
+        state.scrollingReader = true;
+        if (state.longPressTimer) {
+          window.clearTimeout(state.longPressTimer);
+          state.longPressTimer = 0;
+        }
+        return;
+      }
+
+      event.preventDefault();
+      clearSelection();
+      const element = document.elementFromPoint(event.clientX, event.clientY);
+
+      if (!state.longPressFired && !state.dragging && distance > 8) {
+        if (state.longPressTimer) {
+          window.clearTimeout(state.longPressTimer);
+          state.longPressTimer = 0;
+        }
+        state.dragging = true;
+        const startElement = els.reader.querySelector(`.unit[data-id="${state.pointerStart.id}"]`);
+        if (startElement) toggleUnitByElement(startElement, state.dragHiddenValue);
+      }
+
+      if (state.markDragging) {
+        if (element) toggleImportantByElement(element, state.dragImportantValue);
+      } else if (state.dragging) {
+        if (element) toggleUnitByElement(element, state.dragHiddenValue);
+      }
+    });
+
+    els.reader.addEventListener("pointerup", (event) => {
+      if (state.scrollingReader) {
+        finishPointerGesture();
+        return;
+      }
+      if (!state.longPressFired && !state.dragging && state.pointerStart) {
+        const element = document.elementFromPoint(event.clientX, event.clientY);
+        if (element) toggleUnitByElement(element, state.dragHiddenValue);
+      }
+      finishPointerGesture(event);
+    });
+
+    els.reader.addEventListener("pointercancel", () => {
+      finishPointerGesture();
+    });
+
+    function updateTopSwitchFloatState() {
+      document.body.classList.toggle("is-scrolled", window.scrollY > 12);
+    }
+
+    let topSwitchTicking = false;
+    window.addEventListener("scroll", () => {
+      if (topSwitchTicking) return;
+      topSwitchTicking = true;
+      window.requestAnimationFrame(() => {
+        updateTopSwitchFloatState();
+        topSwitchTicking = false;
+      });
+    }, { passive: true });
+
+    updateTopSwitchFloatState();
+
+    loadSettings();
+    loadCards();
+    renderReader();
+    syncReciteHelpVisibility();
+    switchPage("config");
+  </script>
+</body>
+</html>
