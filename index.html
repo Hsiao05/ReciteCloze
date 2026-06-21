@@ -607,7 +607,118 @@
       margin-top: 8px;
     }
 
+    .cards-tools {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .cards-tool-row,
+    .cards-bulk-bar,
+    .github-import {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .folder-strip {
+      display: flex;
+      gap: 8px;
+      min-width: 0;
+      overflow-x: auto;
+      padding: 2px 2px 8px;
+      scrollbar-width: none;
+    }
+
+    .folder-strip::-webkit-scrollbar { display: none; }
+
+    .folder-chip {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--subtle);
+      background: rgba(255, 253, 248, 0.58);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.78);
+      cursor: pointer;
+      transition: color var(--motion), background-color var(--motion), box-shadow var(--motion);
+    }
+
+    .folder-chip.active {
+      color: var(--accent-ink);
+      background: linear-gradient(180deg, #f5dcb7, var(--accent));
+      box-shadow: 0 8px 18px rgba(188, 148, 103, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.72);
+      font-weight: 700;
+    }
+
+    .cards-tool-row .folder-strip {
+      flex: 1 1 auto;
+    }
+
+    .cards-tool-row .btn {
+      flex: 0 0 auto;
+      min-height: 40px;
+      padding-inline: 16px;
+    }
+
+    .cards-bulk-bar {
+      justify-content: space-between;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.66);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.82), 0 10px 22px rgba(142, 120, 98, 0.08);
+    }
+
+    .bulk-count {
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .bulk-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .bulk-actions .btn {
+      min-height: 38px;
+      padding-inline: 13px;
+    }
+
+    .github-import {
+      align-items: stretch;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.58);
+      box-shadow: var(--shadow-pressed);
+    }
+
+    .github-import input {
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 42px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.56);
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.76);
+    }
+
+    .github-import .btn {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding-inline: 16px;
+    }
+
     .cache-card {
+      position: relative;
       display: grid;
       grid-template-columns: 44px minmax(0, 1fr) 50px 50px;
       gap: 10px;
@@ -616,10 +727,47 @@
       border-radius: 18px;
       background: rgba(255, 253, 248, 0.78);
       box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.82), 0 10px 22px rgba(142, 120, 98, 0.08);
+      transition: box-shadow var(--motion), background-color var(--motion), transform var(--motion);
+      touch-action: manipulation;
     }
 
     body[data-theme="dark"] .cache-card {
       background: rgba(53, 57, 70, 0.72);
+    }
+
+    .cache-card.is-selected {
+      background: rgba(245, 220, 183, 0.58);
+      box-shadow: 0 0 0 2px rgba(233, 189, 131, 0.42), 0 12px 24px rgba(142, 120, 98, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.82);
+    }
+
+    .card-select-check {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 999px;
+      color: transparent;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.84), 0 5px 12px rgba(142, 120, 98, 0.10);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--motion), color var(--motion), background-color var(--motion);
+      z-index: 2;
+    }
+
+    .cards-list.is-selecting .card-select-check {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .cache-card.is-selected .card-select-check {
+      color: var(--accent-ink);
+      background: var(--accent);
+      font-weight: 800;
     }
 
     .cache-card-main {
@@ -645,6 +793,23 @@
       color: var(--subtle);
       font-size: 11px;
       line-height: 1.35;
+    }
+
+    .cache-folder {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      min-height: 22px;
+      width: fit-content;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: var(--accent-ink);
+      background: rgba(240, 209, 165, 0.34);
+      font-size: 11px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .cache-card .btn {
@@ -682,6 +847,58 @@
       line-height: 1.6;
       background: rgba(255, 253, 248, 0.58);
       box-shadow: var(--shadow-pressed);
+    }
+
+    .card-sheet {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: end center;
+      padding: 18px;
+      background: rgba(53, 44, 39, 0.18);
+      z-index: 520;
+    }
+
+    .card-sheet[hidden] { display: none; }
+
+    .card-sheet-panel {
+      width: min(420px, 100%);
+      padding: 16px;
+      border-radius: 24px;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.14) 48%, rgba(255, 255, 255, 0.28)),
+        var(--glass-bg-strong, rgba(255, 253, 248, 0.74));
+      border: 1px solid var(--glass-stroke, rgba(255, 255, 255, 0.62));
+      box-shadow: var(--shadow);
+      -webkit-backdrop-filter: blur(var(--glass-blur, 14px)) saturate(1.24);
+      backdrop-filter: blur(var(--glass-blur, 14px)) saturate(1.24);
+    }
+
+    .card-sheet-title {
+      margin: 2px 4px 4px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .card-sheet-meta {
+      margin: 0 4px 14px;
+      color: var(--subtle);
+      font-size: 12px;
+    }
+
+    .card-sheet-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card-sheet-actions .btn {
+      min-height: 44px;
+      padding-inline: 12px;
     }
 
     .recite-panel {
@@ -1009,6 +1226,24 @@
         width: 100%;
       }
 
+      .cards-tool-row,
+      .cards-bulk-bar,
+      .github-import {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .cards-tool-row .btn,
+      .github-import .btn {
+        width: 100%;
+      }
+
+      .bulk-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+      }
+
       .cache-card {
         grid-template-columns: 42px minmax(0, 1fr) 42px 42px;
         gap: 8px;
@@ -1027,6 +1262,10 @@
       .cards-actions {
         gap: 12px;
         margin-top: 28px;
+      }
+
+      .card-sheet {
+        padding: 10px;
       }
     }
 
@@ -1072,6 +1311,14 @@
       .cards-actions .btn {
         min-height: 42px;
         padding-inline: 12px;
+      }
+
+      .bulk-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .card-sheet-actions {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -2009,8 +2256,14 @@
     body[data-theme="dark"] .status,
     body[data-theme="dark"] .api-mode,
     body[data-theme="dark"] .font-control,
+    body[data-theme="dark"] .folder-chip,
+    body[data-theme="dark"] .cards-bulk-bar,
+    body[data-theme="dark"] .github-import,
+    body[data-theme="dark"] .github-import input,
+    body[data-theme="dark"] .card-select-check,
     body[data-theme="dark"] .mode-tabs,
     body[data-theme="dark"] .mode-help,
+    body[data-theme="dark"] .card-sheet-panel,
     body[data-theme="dark"] .toast {
       background:
         linear-gradient(135deg, rgba(197, 221, 242, 0.12), rgba(197, 221, 242, 0.04) 48%, rgba(197, 221, 242, 0.09)),
@@ -2193,6 +2446,9 @@
     .page-switch,
     .api-mode,
     .font-control,
+    .folder-chip,
+    .cards-bulk-bar,
+    .github-import,
     .mode-tabs,
     .status {
       background:
@@ -2213,6 +2469,9 @@
     body[data-theme="dark"] .status,
     body[data-theme="dark"] .api-mode,
     body[data-theme="dark"] .font-control,
+    body[data-theme="dark"] .folder-chip,
+    body[data-theme="dark"] .cards-bulk-bar,
+    body[data-theme="dark"] .github-import,
     body[data-theme="dark"] .mode-tabs,
     body[data-theme="dark"] .mode-help,
     body[data-theme="dark"] .toast {
@@ -2318,6 +2577,9 @@
       .page-switch,
       .api-mode,
       .font-control,
+      .folder-chip,
+      .cards-bulk-bar,
+      .github-import,
       .mode-tabs,
       .status {
         -webkit-backdrop-filter: none !important;
@@ -2722,6 +2984,24 @@
           <span class="hint" id="cardsSummary">浏览器内自动缓存当前语料和标注</span>
         </div>
         <div class="panel-body">
+          <div class="cards-tools">
+            <div class="cards-tool-row">
+              <div class="folder-strip" id="folderStrip" aria-label="卡片分类"></div>
+              <button class="btn secondary" id="toggleSelectCards" type="button">多选管理</button>
+            </div>
+            <div class="cards-bulk-bar" id="cardsBulkBar" hidden>
+              <span class="bulk-count" id="cardsSelectedCount">已选择 0 张</span>
+              <div class="bulk-actions">
+                <button class="btn secondary" id="moveSelectedCards" type="button">移动</button>
+                <button class="btn danger" id="deleteSelectedCards" type="button">删除</button>
+                <button class="btn subtle" id="cancelSelectCards" type="button">取消</button>
+              </div>
+            </div>
+            <div class="github-import" aria-label="从 GitHub 导入卡片">
+              <input id="githubImportUrl" type="url" inputmode="url" autocomplete="off" placeholder="GitHub 仓库、文件或 Gist 链接">
+              <button class="btn secondary" id="importGithubCards" type="button">从 GitHub 导入</button>
+            </div>
+          </div>
           <div class="cards-list" id="cardsList" aria-label="缓存卡片"></div>
           <div class="cards-empty" id="cardsEmpty" hidden>还没有缓存卡片。生成或解析标注后会自动加入这里。</div>
           <div class="cards-actions">
@@ -2836,6 +3116,18 @@
   </main>
 
   <div class="toast" id="toast"></div>
+  <div class="card-sheet" id="cardSheet" hidden>
+    <div class="card-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="cardSheetTitle">
+      <div class="card-sheet-title" id="cardSheetTitle">管理卡片</div>
+      <div class="card-sheet-meta" id="cardSheetMeta"></div>
+      <div class="card-sheet-actions">
+        <button class="btn secondary" id="moveSingleCard" type="button">切换分组</button>
+        <button class="btn secondary" id="exportSingleCard" type="button">导出此文件</button>
+        <button class="btn danger" id="deleteSingleCard" type="button">删除</button>
+        <button class="btn subtle" id="closeCardSheet" type="button">关闭</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const STORAGE_KEY = "beisong-wanxing-settings";
@@ -2877,7 +3169,14 @@
       mode: "none",
       markedText: "",
       activeCardId: "",
+      activeFolder: "all",
       cards: [],
+      cardSelectionMode: false,
+      selectedCardIds: new Set(),
+      managingCardId: "",
+      cardLongPressTimer: 0,
+      cardLongPressFired: false,
+      cardPointerStart: null,
       units: [],
       dragging: false,
       dragHiddenValue: true,
@@ -2903,10 +3202,26 @@
       cardsList: document.getElementById("cardsList"),
       cardsEmpty: document.getElementById("cardsEmpty"),
       cardsSummary: document.getElementById("cardsSummary"),
+      folderStrip: document.getElementById("folderStrip"),
+      toggleSelectCards: document.getElementById("toggleSelectCards"),
+      cardsBulkBar: document.getElementById("cardsBulkBar"),
+      cardsSelectedCount: document.getElementById("cardsSelectedCount"),
+      moveSelectedCards: document.getElementById("moveSelectedCards"),
+      deleteSelectedCards: document.getElementById("deleteSelectedCards"),
+      cancelSelectCards: document.getElementById("cancelSelectCards"),
+      githubImportUrl: document.getElementById("githubImportUrl"),
+      importGithubCards: document.getElementById("importGithubCards"),
       exportCards: document.getElementById("exportCards"),
       importCards: document.getElementById("importCards"),
       importCardsFile: document.getElementById("importCardsFile"),
       clearCards: document.getElementById("clearCards"),
+      cardSheet: document.getElementById("cardSheet"),
+      cardSheetTitle: document.getElementById("cardSheetTitle"),
+      cardSheetMeta: document.getElementById("cardSheetMeta"),
+      moveSingleCard: document.getElementById("moveSingleCard"),
+      exportSingleCard: document.getElementById("exportSingleCard"),
+      deleteSingleCard: document.getElementById("deleteSingleCard"),
+      closeCardSheet: document.getElementById("closeCardSheet"),
       status: document.getElementById("status"),
       statusText: document.getElementById("statusText"),
       themeToggle: document.getElementById("themeToggle"),
@@ -3047,10 +3362,77 @@
         markedText,
         notes: typeof raw.notes === "string" ? raw.notes : "",
         source: typeof raw.source === "string" ? raw.source : "ai",
+        folder: typeof raw.folder === "string" ? raw.folder.trim() : "",
         createdAt: Number(raw.createdAt) || now,
         updatedAt: Number(raw.updatedAt) || now,
         lastRecitedAt: Number(raw.lastRecitedAt) || 0
       };
+    }
+
+    function displayFolder(folder) {
+      const normalized = typeof folder === "string" ? folder.trim() : "";
+      return normalized || "未分类";
+    }
+
+    function getCardFolders() {
+      const counts = new Map();
+      for (const card of state.cards) {
+        const key = card.folder || "";
+        counts.set(key, (counts.get(key) || 0) + 1);
+      }
+      return [...counts.entries()].sort((a, b) => {
+        if (!a[0]) return -1;
+        if (!b[0]) return 1;
+        return a[0].localeCompare(b[0], "zh-CN");
+      });
+    }
+
+    function getVisibleCards() {
+      const sorted = [...state.cards].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      if (state.activeFolder === "all") return sorted;
+      return sorted.filter((card) => (card.folder || "") === state.activeFolder);
+    }
+
+    function getSelectedCards() {
+      return state.cards.filter((card) => state.selectedCardIds.has(card.id));
+    }
+
+    function clearMissingSelectedCards() {
+      const ids = new Set(state.cards.map((card) => card.id));
+      for (const id of [...state.selectedCardIds]) {
+        if (!ids.has(id)) state.selectedCardIds.delete(id);
+      }
+    }
+
+    function setCardSelectionMode(enabled) {
+      state.cardSelectionMode = Boolean(enabled);
+      if (!state.cardSelectionMode) state.selectedCardIds.clear();
+      renderCards();
+    }
+
+    function toggleCardSelected(cardId) {
+      if (state.selectedCardIds.has(cardId)) state.selectedCardIds.delete(cardId);
+      else state.selectedCardIds.add(cardId);
+      if (state.selectedCardIds.size === 0 && state.cardSelectionMode) {
+        state.cardSelectionMode = true;
+      }
+      renderCards();
+    }
+
+    function askFolderName(currentFolder = "") {
+      const value = window.prompt("输入分组/文件夹名称；留空为未分类", currentFolder || "");
+      if (value === null) return null;
+      return value.trim();
+    }
+
+    function moveCardsToFolder(cards, folder) {
+      if (!cards.length) return;
+      const now = Date.now();
+      for (const card of cards) {
+        card.folder = folder;
+        card.updatedAt = now;
+      }
+      saveCards();
     }
 
     function saveCards() {
@@ -3096,16 +3478,36 @@
 
     function renderCards() {
       if (!els.cardsList) return;
-      const sorted = [...state.cards].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-      els.cardsSummary.textContent = sorted.length ? `共 ${sorted.length} 张，浏览器内自动保存` : "浏览器内自动缓存当前语料和标注";
-      els.cardsEmpty.hidden = sorted.length > 0;
-      els.cardsList.innerHTML = sorted.map((card) => {
+      clearMissingSelectedCards();
+      const folders = getCardFolders();
+      if (state.activeFolder !== "all" && !folders.some(([folder]) => folder === state.activeFolder)) {
+        state.activeFolder = "all";
+      }
+      const visibleCards = getVisibleCards();
+      const selectedCount = state.selectedCardIds.size;
+      els.folderStrip.innerHTML = [
+        `<button class="folder-chip ${state.activeFolder === "all" ? "active" : ""}" type="button" data-folder-value="all">全部 ${state.cards.length}</button>`,
+        ...folders.map(([folder, count]) => `<button class="folder-chip ${state.activeFolder === folder ? "active" : ""}" type="button" data-folder-value="${escapeHtml(folder)}">${escapeHtml(displayFolder(folder))} ${count}</button>`)
+      ].join("");
+      els.cardsList.classList.toggle("is-selecting", state.cardSelectionMode);
+      els.cardsBulkBar.hidden = !state.cardSelectionMode;
+      els.cardsSelectedCount.textContent = `已选择 ${selectedCount} 张`;
+      els.toggleSelectCards.textContent = state.cardSelectionMode ? "完成" : "多选管理";
+      els.cardsSummary.textContent = state.cards.length
+        ? `共 ${state.cards.length} 张，当前分类 ${visibleCards.length} 张`
+        : "浏览器内自动缓存当前语料和标注";
+      els.cardsEmpty.hidden = visibleCards.length > 0;
+      els.cardsEmpty.textContent = state.cards.length ? "当前分类没有卡片。" : "还没有缓存卡片。生成或解析标注后会自动加入这里。";
+      els.cardsList.innerHTML = visibleCards.map((card) => {
         const last = card.lastRecitedAt ? `${formatDateTime(card.lastRecitedAt)}（${formatRelativeTime(card.lastRecitedAt)}）` : "还没有背诵记录";
+        const selected = state.selectedCardIds.has(card.id);
         return `
-          <article class="cache-card" data-card-id="${escapeHtml(card.id)}">
+          <article class="cache-card ${selected ? "is-selected" : ""}" data-card-id="${escapeHtml(card.id)}">
+            <button class="card-select-check" type="button" data-card-action="toggle-select" aria-label="${selected ? "取消选择" : "选择"}卡片">${selected ? "✓" : ""}</button>
             <button class="btn danger" type="button" data-card-action="delete">删除</button>
             <div class="cache-card-main">
               <div class="cache-title">${escapeHtml(card.title || cardExcerpt(card.sourceText, card.markedText))}</div>
+              <div class="cache-folder">${escapeHtml(displayFolder(card.folder))}</div>
               <div class="cache-meta">上次背诵时间：<br>${escapeHtml(last)}</div>
             </div>
             <button class="btn subtle" type="button" data-card-action="config">配置</button>
@@ -3113,6 +3515,75 @@
           </article>
         `;
       }).join("");
+    }
+
+    function openCardManager(card) {
+      if (!card) return;
+      state.managingCardId = card.id;
+      els.cardSheetTitle.textContent = card.title || cardExcerpt(card.sourceText, card.markedText);
+      els.cardSheetMeta.textContent = `分组：${displayFolder(card.folder)} · ${card.lastRecitedAt ? `上次背诵 ${formatRelativeTime(card.lastRecitedAt)}` : "还没有背诵记录"}`;
+      els.cardSheet.hidden = false;
+    }
+
+    function closeCardManager() {
+      state.managingCardId = "";
+      els.cardSheet.hidden = true;
+    }
+
+    function getManagingCard() {
+      return state.cards.find((card) => card.id === state.managingCardId);
+    }
+
+    function moveSelectedCardsToFolder() {
+      const cards = getSelectedCards();
+      if (!cards.length) {
+        toast("请先选择卡片");
+        return;
+      }
+      const folder = askFolderName(cards[0]?.folder || "");
+      if (folder === null) return;
+      moveCardsToFolder(cards, folder);
+      state.activeFolder = folder;
+      setCardSelectionMode(false);
+      toast(`已移动 ${cards.length} 张卡片`);
+    }
+
+    function deleteSelectedCards() {
+      const cards = getSelectedCards();
+      if (!cards.length) {
+        toast("请先选择卡片");
+        return;
+      }
+      if (!window.confirm(`确定删除已选择的 ${cards.length} 张卡片吗？`)) return;
+      const ids = new Set(cards.map((card) => card.id));
+      state.cards = state.cards.filter((card) => !ids.has(card.id));
+      if (ids.has(state.activeCardId)) state.activeCardId = "";
+      setCardSelectionMode(false);
+      saveCards();
+      toast(`已删除 ${cards.length} 张卡片`);
+    }
+
+    function moveManagingCard() {
+      const card = getManagingCard();
+      if (!card) return;
+      const folder = askFolderName(card.folder || "");
+      if (folder === null) return;
+      moveCardsToFolder([card], folder);
+      state.activeFolder = folder;
+      renderCards();
+      openCardManager(card);
+      toast("卡片分组已更新");
+    }
+
+    function deleteManagingCard() {
+      const card = getManagingCard();
+      if (!card) return;
+      if (!window.confirm("确定删除这张卡片吗？")) return;
+      state.cards = state.cards.filter((item) => item.id !== card.id);
+      if (state.activeCardId === card.id) state.activeCardId = "";
+      closeCardManager();
+      saveCards();
+      toast("已删除卡片");
     }
 
     function loadCardIntoEditor(card) {
@@ -3135,50 +3606,180 @@
       saveCards();
     }
 
-    function exportCardsFile() {
-      if (!state.cards.length) {
-        toast("没有可导出的缓存");
-        return;
-      }
+    function downloadCardsFile(cards, filenamePrefix = "beisong-cards") {
       const payload = {
         type: "beisong-wanxing-cards",
         version: 1,
         exportedAt: new Date().toISOString(),
-        cards: state.cards
+        cards
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `beisong-cards-${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `${filenamePrefix}-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
+    }
+
+    function exportCardsFile() {
+      if (!state.cards.length) {
+        toast("没有可导出的缓存");
+        return;
+      }
+      downloadCardsFile(state.cards);
       toast("缓存文件已导出");
+    }
+
+    function exportSingleCardFile(card) {
+      if (!card) return;
+      downloadCardsFile([card], "beisong-card");
+      toast("此卡片已导出");
+    }
+
+    function readCardsFromJsonText(text) {
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed) ? parsed : Array.isArray(parsed.cards) ? parsed.cards : [];
+    }
+
+    function mergeImportedCards(incoming) {
+      const existing = new Set(state.cards.map((card) => card.signature));
+      const additions = incoming.map(normalizeCard).filter(Boolean).filter((card) => {
+        if (existing.has(card.signature)) return false;
+        existing.add(card.signature);
+        return true;
+      });
+      if (additions.length) {
+        state.cards = [...additions, ...state.cards];
+        saveCards();
+      }
+      return additions.length;
+    }
+
+    async function importCardsFromTextList(texts) {
+      const incoming = [];
+      for (const text of texts) incoming.push(...readCardsFromJsonText(text));
+      return mergeImportedCards(incoming);
     }
 
     async function importCardsFile(file) {
       if (!file) return;
       try {
         const text = await file.text();
-        const parsed = JSON.parse(text);
-        const incoming = Array.isArray(parsed) ? parsed : Array.isArray(parsed.cards) ? parsed.cards : [];
-        const existing = new Set(state.cards.map((card) => card.signature));
-        const additions = incoming.map(normalizeCard).filter(Boolean).filter((card) => {
-          if (existing.has(card.signature)) return false;
-          existing.add(card.signature);
-          return true;
-        });
-        if (additions.length) {
-          state.cards = [...additions, ...state.cards];
-          saveCards();
-        }
-        toast(additions.length ? `已导入 ${additions.length} 张新卡片` : "没有发现新的不重复卡片");
+        const additions = await importCardsFromTextList([text]);
+        toast(additions ? `已导入 ${additions} 张新卡片` : "没有发现新的不重复卡片");
       } catch {
         toast("导入失败，请选择有效 JSON 文件");
       } finally {
         els.importCardsFile.value = "";
+      }
+    }
+
+    function gitHubApiHeaders() {
+      return { Accept: "application/vnd.github+json" };
+    }
+
+    function directGitHubFileUrl(url) {
+      if (url.hostname === "raw.githubusercontent.com" || url.hostname === "gist.githubusercontent.com") {
+        return { name: url.pathname.split("/").pop() || "cards.json", url: url.href };
+      }
+      if (url.hostname !== "github.com") return null;
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (parts.length >= 5 && (parts[2] === "blob" || parts[2] === "raw")) {
+        const [owner, repo, , branch, ...pathParts] = parts;
+        return {
+          name: pathParts[pathParts.length - 1] || "cards.json",
+          url: `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${pathParts.join("/")}`
+        };
+      }
+      return null;
+    }
+
+    async function resolveGistFiles(url) {
+      const parts = url.pathname.split("/").filter(Boolean);
+      const gistId = parts[1] || parts[0];
+      if (!gistId) throw new Error("missing gist id");
+      const response = await fetch(`https://api.github.com/gists/${gistId}`, { headers: gitHubApiHeaders() });
+      if (!response.ok) throw new Error("gist fetch failed");
+      const data = await response.json();
+      const files = Object.values(data.files || {});
+      const jsonFiles = files.filter((file) => /\.json$/i.test(file.filename || ""));
+      return (jsonFiles.length ? jsonFiles : files).map((file) => ({
+        name: file.filename || "gist.json",
+        url: file.raw_url,
+        content: typeof file.content === "string" ? file.content : ""
+      })).filter((file) => file.url || file.content);
+    }
+
+    async function resolveRepoFiles(url) {
+      const direct = directGitHubFileUrl(url);
+      if (direct) return [direct];
+      if (url.hostname !== "github.com") return [{ name: url.pathname.split("/").pop() || "cards.json", url: url.href }];
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (parts.length < 2) throw new Error("missing repo");
+      const [owner, repo] = parts;
+      let branch = "";
+      let prefix = "";
+      if (parts[2] === "tree" && parts[3]) {
+        branch = parts[3];
+        prefix = parts.slice(4).join("/");
+      } else {
+        const repoResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers: gitHubApiHeaders() });
+        if (!repoResponse.ok) throw new Error("repo fetch failed");
+        const repoData = await repoResponse.json();
+        branch = repoData.default_branch || "main";
+      }
+      const treeResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers: gitHubApiHeaders() });
+      if (!treeResponse.ok) throw new Error("repo tree fetch failed");
+      const treeData = await treeResponse.json();
+      const jsonFiles = (treeData.tree || [])
+        .filter((item) => item.type === "blob" && /\.json$/i.test(item.path || ""))
+        .filter((item) => !prefix || item.path === prefix || item.path.startsWith(`${prefix}/`))
+        .slice(0, 30)
+        .map((item) => ({
+          name: item.path.split("/").pop() || "cards.json",
+          url: `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${item.path}`
+        }));
+      if (!jsonFiles.length) throw new Error("no json files");
+      return jsonFiles;
+    }
+
+    async function resolveGitHubImportFiles(input) {
+      const normalizedInput = /^https?:\/\//i.test(input) ? input : `https://${input}`;
+      const url = new URL(normalizedInput);
+      if (url.hostname === "gist.github.com") return resolveGistFiles(url);
+      return resolveRepoFiles(url);
+    }
+
+    async function fetchImportText(file) {
+      if (file.content) return file.content;
+      const response = await fetch(file.url);
+      if (!response.ok) throw new Error(`fetch failed: ${file.name}`);
+      return response.text();
+    }
+
+    async function importCardsFromGitHub() {
+      const input = els.githubImportUrl.value.trim();
+      if (!input) {
+        toast("请先粘贴 GitHub 仓库、文件或 Gist 链接");
+        return;
+      }
+      els.importGithubCards.disabled = true;
+      const oldText = els.importGithubCards.textContent;
+      els.importGithubCards.textContent = "导入中";
+      try {
+        const files = await resolveGitHubImportFiles(input);
+        const texts = [];
+        for (const file of files) texts.push(await fetchImportText(file));
+        const additions = await importCardsFromTextList(texts);
+        toast(additions ? `已从 GitHub 导入 ${additions} 张新卡片` : "GitHub 中没有新的不重复卡片");
+      } catch {
+        toast("GitHub 导入失败，请确认链接公开且包含有效 JSON");
+      } finally {
+        els.importGithubCards.disabled = false;
+        els.importGithubCards.textContent = oldText;
       }
     }
 
@@ -4196,13 +4797,35 @@
       if (parseEditor()) switchPage("recite");
     });
 
+    els.folderStrip.addEventListener("click", (event) => {
+      const chip = event.target.closest(".folder-chip");
+      if (!chip) return;
+      state.activeFolder = chip.dataset.folderValue || "";
+      if (state.activeFolder === "all") state.activeFolder = "all";
+      renderCards();
+    });
+
     els.cardsList.addEventListener("click", (event) => {
       const actionButton = event.target.closest("button[data-card-action]");
-      if (!actionButton) return;
-      const cardElement = actionButton.closest(".cache-card");
+      const cardElement = event.target.closest(".cache-card");
       const card = state.cards.find((item) => item.id === cardElement?.dataset.cardId);
       if (!card) return;
+      if (state.cardLongPressFired) {
+        state.cardLongPressFired = false;
+        event.preventDefault();
+        return;
+      }
+      if (state.cardSelectionMode && (!actionButton || actionButton.dataset.cardAction === "toggle-select")) {
+        toggleCardSelected(card.id);
+        return;
+      }
+      if (!actionButton) return;
       const action = actionButton.dataset.cardAction;
+      if (action === "toggle-select") {
+        setCardSelectionMode(true);
+        toggleCardSelected(card.id);
+        return;
+      }
       if (action === "delete") {
         state.cards = state.cards.filter((item) => item.id !== card.id);
         if (state.activeCardId === card.id) state.activeCardId = "";
@@ -4218,9 +4841,55 @@
       }
     });
 
+    els.cardsList.addEventListener("pointerdown", (event) => {
+      const cardElement = event.target.closest(".cache-card");
+      if (!cardElement || event.target.closest("button")) return;
+      const card = state.cards.find((item) => item.id === cardElement.dataset.cardId);
+      if (!card) return;
+      state.cardLongPressFired = false;
+      state.cardPointerStart = { x: event.clientX, y: event.clientY };
+      window.clearTimeout(state.cardLongPressTimer);
+      state.cardLongPressTimer = window.setTimeout(() => {
+        state.cardLongPressFired = true;
+        openCardManager(card);
+      }, 560);
+    });
+
+    els.cardsList.addEventListener("pointermove", (event) => {
+      if (!state.cardPointerStart) return;
+      const dx = Math.abs(event.clientX - state.cardPointerStart.x);
+      const dy = Math.abs(event.clientY - state.cardPointerStart.y);
+      if (dx > 8 || dy > 8) {
+        window.clearTimeout(state.cardLongPressTimer);
+        state.cardPointerStart = null;
+      }
+    });
+
+    ["pointerup", "pointercancel", "pointerleave"].forEach((type) => {
+      els.cardsList.addEventListener(type, () => {
+        window.clearTimeout(state.cardLongPressTimer);
+        state.cardPointerStart = null;
+      });
+    });
+
     els.exportCards.addEventListener("click", exportCardsFile);
     els.importCards.addEventListener("click", () => els.importCardsFile.click());
     els.importCardsFile.addEventListener("change", () => importCardsFile(els.importCardsFile.files[0]));
+    els.importGithubCards.addEventListener("click", importCardsFromGitHub);
+    els.githubImportUrl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") importCardsFromGitHub();
+    });
+    els.toggleSelectCards.addEventListener("click", () => setCardSelectionMode(!state.cardSelectionMode));
+    els.cancelSelectCards.addEventListener("click", () => setCardSelectionMode(false));
+    els.moveSelectedCards.addEventListener("click", moveSelectedCardsToFolder);
+    els.deleteSelectedCards.addEventListener("click", deleteSelectedCards);
+    els.closeCardSheet.addEventListener("click", closeCardManager);
+    els.cardSheet.addEventListener("click", (event) => {
+      if (event.target === els.cardSheet) closeCardManager();
+    });
+    els.moveSingleCard.addEventListener("click", moveManagingCard);
+    els.exportSingleCard.addEventListener("click", () => exportSingleCardFile(getManagingCard()));
+    els.deleteSingleCard.addEventListener("click", deleteManagingCard);
     els.clearCards.addEventListener("click", () => {
       if (!state.cards.length) {
         toast("没有可清除的缓存");
@@ -4229,6 +4898,9 @@
       if (!window.confirm("确定清除所有缓存卡片吗？")) return;
       state.cards = [];
       state.activeCardId = "";
+      state.activeFolder = "all";
+      state.selectedCardIds.clear();
+      state.cardSelectionMode = false;
       saveCards();
       toast("缓存已清除");
     });
