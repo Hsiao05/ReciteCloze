@@ -2768,8 +2768,8 @@
               <label>
                 模型
                 <select id="modelName">
-                  <option value="deepseek-v4-flash">deepseek v4 flash (1M)</option>
-                  <option value="deepseek-v4-pro">Deepseek v4 pro (1M)</option>
+                  <option value="deepseek-v4-flash">deepseek-v4-flash</option>
+                  <option value="deepseek-v4-pro">deepseek-v4-pro</option>
                 </select>
               </label>
               <label>
@@ -3539,7 +3539,7 @@
     }
 
     function isExplicitLogicToken(text) {
-      return /^(?:and|or|nor|but|however|therefore|thus|hence|because|although|though|whereas|if|then|so|yet|nevertheless|meanwhile|first|second|third|finally|と|や|及び|または|しかし|だから|そして|因此|所以|因为|虽然|但是|然而|并且|或者|以及|首先|其次|最后)$/iu.test(text.trim());
+      return /^(?:and|or|nor|but|however|therefore|thus|hence|because|although|though|whereas|if|then|so|yet|nevertheless|meanwhile|first|second|third|finally|及び|または|しかし|だから|そして|因此|所以|因为|虽然|但是|然而|并且|或者|以及|首先|其次|最后)$/iu.test(text.trim());
     }
 
     function isWeakFunctionToken(text) {
