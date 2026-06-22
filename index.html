@@ -1718,6 +1718,28 @@
         gap: 20px;
       }
 
+      .config-mode-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+      }
+
+      .config-mode-section,
+      .config-mode-grid,
+      .config-mode-grid > .panel {
+        min-width: 0;
+      }
+
+      .config-mode-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .config-mode-title .hint {
+        max-width: none;
+        text-align: left;
+      }
+
       textarea { min-height: 250px; }
       .marked-editor { min-height: 300px; }
     }
@@ -1725,6 +1747,7 @@
     @media (max-width: 680px) {
       .shell {
         width: min(100vw - 12px, 1220px);
+        max-width: calc(100vw - 12px);
         padding-top: 12px;
         overflow-x: clip;
       }
@@ -1759,6 +1782,35 @@
       .panel-title { font-size: 25px; }
       .panel-body { padding: 12px 22px 24px; }
       label { font-size: 18px; }
+
+      .config-grid,
+      .config-mode-section,
+      .config-mode-grid,
+      .panel,
+      .panel-body,
+      label,
+      textarea,
+      input,
+      select,
+      .api-mode,
+      .button-row,
+      .manual-anki-rows,
+      .manual-anki-row,
+      .anki-csv-preview {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .config-mode-title h2 {
+        font-size: 22px;
+      }
+
+      .api-mode button,
+      .button-row .btn,
+      .cards-actions .btn,
+      .manual-anki-row-head .btn {
+        min-width: 0;
+      }
 
       .row { grid-template-columns: 1fr; }
 
