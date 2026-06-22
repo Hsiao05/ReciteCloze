@@ -4,8 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>背诵完形</title>
-  <link rel="icon" href="/icon/favicon.ico" sizes="any">
-  <link rel="apple-touch-icon" href="/icon/apple-touch-icon.png">
   <style>
     :root {
       color-scheme: light;
@@ -3832,6 +3830,7 @@
                   <div class="button-row">
                     <button class="btn secondary" id="manualAnkiApplyFields" type="button">应用字段</button>
                     <button class="btn secondary" id="manualAnkiAddRow" type="button">添加卡片</button>
+                    <button class="btn danger" id="manualAnkiClearRows" type="button">清空卡片</button>
                     <button class="btn" id="manualAnkiCreateDeck" type="button">生成闪卡</button>
                   </div>
                   <div class="manual-anki-rows" id="manualAnkiRows"></div>
@@ -3911,7 +3910,7 @@
 
     const directMarkPrompt = [
       "你是背诵完形材料的语义标注器，只返回 JSON，不返回 Markdown。",
-      "输入会给你 source 和 chunks。chunks 是本地已经稳定切好的词块，每个词块有 id、text、lang、line、defaultKeep。",
+      "输入会给你 chunks。chunks 是本地已经稳定切好的词块，按原文顺序排列，每个词块有 id、text、lang、line、defaultKeep。",
       "不要改写、删除、添加原文，不要输出全文，不要插入 |。",
       "只返回这个 JSON 结构：{\"core\":[[startId,endId]],\"broad\":[[startId,endId]],\"priority\":[{\"id\":数字,\"score\":1到100,\"reason\":\"简短理由\"}],\"keep\":[[startId,endId]],\"notes\":\"简短说明\"}。",
       "你要像命题老师设计填空题一样判断：哪里最可能被挖空、哪里最能区分是否真的背会，才进 core 或高分 priority。",
@@ -4035,6 +4034,7 @@
       manualAnkiFields: document.getElementById("manualAnkiFields"),
       manualAnkiApplyFields: document.getElementById("manualAnkiApplyFields"),
       manualAnkiAddRow: document.getElementById("manualAnkiAddRow"),
+      manualAnkiClearRows: document.getElementById("manualAnkiClearRows"),
       manualAnkiCreateDeck: document.getElementById("manualAnkiCreateDeck"),
       manualAnkiRows: document.getElementById("manualAnkiRows"),
       modeTabs: document.getElementById("modeTabs"),
@@ -4894,6 +4894,22 @@
       });
       state.manualAnkiPage = Math.floor((state.manualAnkiRows.length - 1) / Math.max(1, Number(state.manualAnkiPageSize) || 20));
       renderManualAnkiRows();
+    }
+
+    function clearManualAnkiRows() {
+      syncManualAnkiRowsFromDom();
+      const hasContent = state.manualAnkiRows.some((row) => Object.values(row.values || {}).some((value) => String(value || "").trim()));
+      if ((state.manualAnkiRows.length > 1 || hasContent || state.ankiImport) && !window.confirm("确定清空当前手动闪卡和已导入的 CSV 预览吗？")) return;
+      const columns = manualAnkiColumns();
+      state.manualAnkiRows = [{
+        id: `manual-${Date.now().toString(36)}`,
+        values: Object.fromEntries(columns.map((column) => [column, ""]))
+      }];
+      state.manualAnkiPage = 0;
+      state.ankiImport = null;
+      renderAnkiCsvPreview();
+      renderManualAnkiRows();
+      toast("手动闪卡已清空");
     }
 
     function createManualAnkiDeck() {
@@ -6491,7 +6507,6 @@
           {
             role: "user",
             content: JSON.stringify({
-              source,
               chunks: compactChunksForAI(chunks)
             })
           }
@@ -6784,6 +6799,7 @@
       toast("手动闪卡字段已应用");
     });
     els.manualAnkiAddRow?.addEventListener("click", addManualAnkiRow);
+    els.manualAnkiClearRows?.addEventListener("click", clearManualAnkiRows);
     els.manualAnkiCreateDeck?.addEventListener("click", createManualAnkiDeck);
     els.manualAnkiRows?.addEventListener("input", syncManualAnkiRowsFromDom);
     els.manualAnkiRows?.addEventListener("click", (event) => {
