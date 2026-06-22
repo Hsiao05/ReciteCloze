@@ -577,6 +577,92 @@
 
     .marked-editor:focus { box-shadow: var(--focus); }
 
+    .manual-marker-panel {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .manual-marker-toolbar {
+      display: grid;
+      gap: 10px;
+    }
+
+    .manual-marker-stats {
+      min-height: 28px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: var(--subtle);
+      background: rgba(255, 253, 248, 0.58);
+      box-shadow: var(--shadow-pressed);
+      font-size: 12px;
+      font-weight: 760;
+      line-height: 1.35;
+    }
+
+    body[data-theme="dark"] .manual-marker-stats {
+      background: rgba(31, 35, 45, 0.88);
+    }
+
+    .manual-marker {
+      min-height: 240px;
+      max-height: min(52vh, 520px);
+      overflow: auto;
+      padding: 18px 20px;
+      border-radius: 20px;
+      color: var(--ink);
+      background: var(--panel-soft);
+      box-shadow: var(--shadow-pressed);
+      line-height: 2;
+      user-select: none;
+      touch-action: pan-y;
+    }
+
+    .manual-marker:empty::before {
+      content: "载入源语料或标注结果后，在这里短按/拖动标二层，长按/拖动标一层。";
+      color: var(--subtle);
+      line-height: 1.7;
+    }
+
+    .manual-mark-unit {
+      display: inline;
+      padding: 1px 3px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background-color var(--motion), color var(--motion), box-shadow var(--motion);
+    }
+
+    .manual-mark-unit.keep {
+      color: var(--subtle);
+      cursor: default;
+    }
+
+    .manual-mark-unit.core {
+      color: #782b32;
+      background: rgba(223, 112, 120, 0.28);
+      box-shadow: 0 0 0 1px rgba(223, 112, 120, 0.24) inset;
+      font-weight: 780;
+    }
+
+    .manual-mark-unit.broad {
+      color: #584176;
+      background: rgba(151, 126, 195, 0.24);
+      box-shadow: 0 0 0 1px rgba(151, 126, 195, 0.20) inset;
+      font-weight: 700;
+    }
+
+    body[data-theme="dark"] .manual-mark-unit.core {
+      color: #ffd4d8;
+      background: rgba(240, 139, 146, 0.30);
+      box-shadow: 0 0 0 1px rgba(240, 139, 146, 0.24) inset;
+    }
+
+    body[data-theme="dark"] .manual-mark-unit.broad {
+      color: #e4d8ff;
+      background: rgba(157, 138, 190, 0.30);
+      box-shadow: 0 0 0 1px rgba(157, 138, 190, 0.24) inset;
+    }
+
     .protocol {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3785,6 +3871,17 @@
                   <button class="btn secondary" id="copyMarked" type="button">复制标注</button>
                   <button class="btn secondary" id="parseAndRecite" type="button">解析并进入背诵</button>
                 </div>
+                <div class="manual-marker-panel">
+                  <div class="manual-marker-toolbar">
+                    <div class="button-row">
+                      <button class="btn secondary" id="manualMarkLoad" type="button">载入本地标记</button>
+                      <button class="btn secondary" id="manualMarkApply" type="button">写回标注结果</button>
+                      <button class="btn subtle" id="manualMarkClear" type="button">清空两层标记</button>
+                    </div>
+                    <div class="manual-marker-stats" id="manualMarkStats">未载入本地标记</div>
+                  </div>
+                  <div class="manual-marker" id="manualMarker" aria-label="本地两层重点标记器"></div>
+                </div>
               </div>
             </section>
           </div>
@@ -3910,14 +4007,13 @@
 
     const directMarkPrompt = [
       "你是背诵完形材料的语义标注器，只返回 JSON，不返回 Markdown。",
-      "输入会给你 chunks。chunks 是本地已经稳定切好的词块，按原文顺序排列，每个词块有 id、text、lang、line、defaultKeep。",
+      "输入会给你 chunks。chunks 是本地已经稳定切好的词块，按原文顺序排列，每个词块有 id、text、line、keep。",
       "不要改写、删除、添加原文，不要输出全文，不要插入 |。",
-      "只返回这个 JSON 结构：{\"core\":[[startId,endId]],\"broad\":[[startId,endId]],\"priority\":[{\"id\":数字,\"score\":1到100,\"reason\":\"简短理由\"}],\"keep\":[[startId,endId]],\"notes\":\"简短说明\"}。",
+      "只返回这个 JSON 结构：{\"core\":[[startId,endId]],\"broad\":[[startId,endId]],\"priority\":[{\"id\":数字,\"score\":1到100}],\"keep\":[[startId,endId]],\"notes\":\"简短说明\"}。",
       "你要像命题老师设计填空题一样判断：哪里最可能被挖空、哪里最能区分是否真的背会，才进 core 或高分 priority。",
       "core 是第一层高概率考点，只放最像填空题答案的硬信息：①年份/数字/比例/排序本体；②人物、地点、机构、作品、事件、朝代、国家等专名；③理论、概念、制度、政策、公式、模型、术语名；④因果链、比较关系、定义判断中的原因、结果、对象、归属、结论关键词。",
       "broad 是第二层扩展考点，放次高概率答案：限定条件、分类项、配对项、关键动作、关系谓语、重要修饰语、支撑性事实。broad 用来辅助回忆句意，但仍必须有考点价值。",
-      "priority 必须列出 24-72 个最值得挖空的单个词块 id；90-100 分只给数字、专名、术语、事件、理论、公式、结论核心词；70-89 分给次级但仍可能考的支撑词；低于 60 分的普通词不要列入。网页会优先用 priority 选第一层。",
-      "priority 的理由必须说明它为什么像考试答案，例如‘年份数字’‘专有名词’‘理论名称’‘定义对象’‘因果关键结果’‘比较配对项’；不要因为词里包含‘并/和/但/与/或’等字就把它当连接词或保留项。",
+      "priority 必须列出 18-48 个最值得挖空的单个词块 id；90-100 分只给数字、专名、术语、事件、理论、公式、结论核心词；70-89 分给次级但仍可能考的支撑词；低于 60 分的普通词不要列入。网页会优先用 priority 选第一层。",
       "只在词块本身就是独立逻辑连接词，并且上下文确实表达并列、转折、选择、递进、因果时，才可把‘并、和、但、与、或、以及、且、however、but、and、or’视为逻辑词；如果这些字只是词内部字符或固定名称的一部分，例如‘并发、并行、和谐、共和国、但丁、或许、或者说’，绝不能因此 keep 或高分。",
       "keep 只用于标题编号、列表符号、箭头、纯结构符号、标点和必须原样显示的排版符号。普通年份、世纪、年代、金额、正文数字、学科术语、专名都不是结构保护。",
       "时间与数字表达必须优先标记数字本体：‘20世纪’优先给‘20’高分，不要只标‘世纪’；‘1949年’优先标‘1949’；‘21st century’优先标‘21st’；‘三十年’优先标‘三十’。‘世纪、年代、年、月、日、century、year’这类单位词单独出现时通常不是核心答案。",
@@ -3967,6 +4063,14 @@
       pointerStart: null,
       scrollingReader: false,
       touchedDuringDrag: new Set(),
+      manualMarkUnits: [],
+      manualMarkPointerStart: null,
+      manualMarkLongPressTimer: 0,
+      manualMarkLongPressFired: false,
+      manualMarkDragging: false,
+      manualMarkScroll: false,
+      manualMarkTargetType: "broad",
+      manualMarkTouched: new Set(),
       reciteHelpDismissed: false,
       reciteHelpSignature: ""
     };
@@ -4024,6 +4128,11 @@
       mockGenerate: document.getElementById("mockGenerate"),
       clearSource: document.getElementById("clearSource"),
       markedEditor: document.getElementById("markedEditor"),
+      manualMarkLoad: document.getElementById("manualMarkLoad"),
+      manualMarkApply: document.getElementById("manualMarkApply"),
+      manualMarkClear: document.getElementById("manualMarkClear"),
+      manualMarker: document.getElementById("manualMarker"),
+      manualMarkStats: document.getElementById("manualMarkStats"),
       copyMarked: document.getElementById("copyMarked"),
       parseAndRecite: document.getElementById("parseAndRecite"),
       notesText: document.getElementById("notesText"),
@@ -5837,6 +5946,15 @@
       state.units.forEach((unit) => {
         unit.source = source;
       });
+      state.manualMarkUnits = state.units.map((unit, index) => ({
+        ...unit,
+        id: index,
+        hidden: false,
+        manual: false,
+        important: false,
+        source: "manual"
+      }));
+      renderManualMarker();
       applyMode();
       cacheCurrentCard(source);
       resetReciteHelpForCurrentMaterial();
@@ -5852,6 +5970,119 @@
       }
       loadMarkedText(text, "已解析标注结果");
       return true;
+    }
+
+    function manualMarkClass(unit) {
+      const classes = ["manual-mark-unit"];
+      if (unit.type === "core") classes.push("core");
+      if (unit.type === "broad") classes.push("broad");
+      if (unit.type === "keep") classes.push("keep");
+      return classes.join(" ");
+    }
+
+    function manualMarkStatsText() {
+      const maskable = state.manualMarkUnits.filter((unit) => unit.text.trim() && !["keep", "space", "linebreak"].includes(unit.type));
+      const core = maskable.filter((unit) => unit.type === "core").length;
+      const broad = maskable.filter((unit) => unit.type === "broad").length;
+      const coreRatio = maskable.length ? Math.round(core / maskable.length * 100) : 0;
+      const totalRatio = maskable.length ? Math.round((core + broad) / maskable.length * 100) : 0;
+      return maskable.length
+        ? `一层 ${coreRatio}% · 二层合计 ${totalRatio}% · 可标记 ${maskable.length} 个`
+        : "未载入本地标记";
+    }
+
+    function renderManualMarker() {
+      if (!els.manualMarker) return;
+      const html = state.manualMarkUnits.map((unit, index) => {
+        if (unit.type === "linebreak") return "<br>".repeat(Math.max(1, unit.text.length));
+        if (unit.type === "space") return escapeHtml(unit.text);
+        const markable = unit.type !== "keep";
+        const data = markable ? ` data-manual-id="${index}"` : "";
+        return `<span class="${manualMarkClass(unit)}"${data}>${escapeHtml(unit.text)}</span>`;
+      }).join("");
+      els.manualMarker.innerHTML = html;
+      if (els.manualMarkStats) els.manualMarkStats.textContent = manualMarkStatsText();
+    }
+
+    function loadManualMarker() {
+      const marked = els.markedEditor.textContent.trim();
+      const source = normalizeSourceText(els.sourceText.value);
+      const text = marked || source;
+      if (!text) {
+        toast("请先输入源语料或生成标注结果");
+        return;
+      }
+      state.manualMarkUnits = parseMarkedText(text).map((unit, index) => ({
+        ...unit,
+        id: index,
+        hidden: false,
+        manual: false,
+        important: false,
+        source: "manual"
+      }));
+      renderManualMarker();
+      toast(marked ? "已载入当前标注，可继续手动编辑" : "已载入源语料，可本地手动标记");
+    }
+
+    function manualUnitsToMarkedText(units) {
+      return units.map((unit) => {
+        if (unit.type === "core") return `${MARK_CORE_OPEN}${unit.text}${MARK_CORE_CLOSE}`;
+        if (unit.type === "broad") return `${MARK_BROAD_OPEN}${unit.text}${MARK_BROAD_CLOSE}`;
+        return unit.text;
+      }).join("");
+    }
+
+    function applyManualMarkerToEditor() {
+      if (!state.manualMarkUnits.length) {
+        toast("请先载入本地标记");
+        return;
+      }
+      const markedText = manualUnitsToMarkedText(state.manualMarkUnits);
+      els.markedEditor.textContent = markedText;
+      els.notesText.textContent = `本地手动标记：${manualMarkStatsText()}。可继续编辑后解析。`;
+      setStatus("本地标记已写回标注结果");
+      toast("已写回标注结果");
+    }
+
+    function clearManualMarkerLayers() {
+      if (!state.manualMarkUnits.length) {
+        toast("请先载入本地标记");
+        return;
+      }
+      state.manualMarkUnits = state.manualMarkUnits.map((unit) => (
+        unit.type === "core" || unit.type === "broad" ? { ...unit, type: "plain" } : unit
+      ));
+      renderManualMarker();
+      toast("已清空一层和二层标记");
+    }
+
+    function manualMarkElementAtPoint(x, y) {
+      return document.elementFromPoint(x, y)?.closest(".manual-mark-unit[data-manual-id]");
+    }
+
+    function setManualMarkTypeByElement(element, type) {
+      if (!element) return;
+      const id = Number(element.dataset.manualId);
+      if (!Number.isInteger(id) || state.manualMarkTouched.has(id)) return;
+      const unit = state.manualMarkUnits[id];
+      if (!unit || unit.type === "keep" || unit.type === "space" || unit.type === "linebreak") return;
+      unit.type = type;
+      state.manualMarkTouched.add(id);
+      renderManualMarker();
+    }
+
+    function finishManualMarkGesture(event) {
+      if (state.manualMarkLongPressTimer) {
+        window.clearTimeout(state.manualMarkLongPressTimer);
+        state.manualMarkLongPressTimer = 0;
+      }
+      if (event && state.manualMarkDragging) event.preventDefault();
+      state.manualMarkPointerStart = null;
+      state.manualMarkLongPressFired = false;
+      state.manualMarkDragging = false;
+      state.manualMarkScroll = false;
+      state.manualMarkTouched.clear();
+      clearSelection();
     }
 
     function normalizeSourceText(source) {
@@ -6060,13 +6291,15 @@
     function compactChunksForAI(chunks) {
       return chunks
         .filter((chunk) => chunk.kind !== "space")
-        .map((chunk) => ({
-          id: chunk.id,
-          text: chunk.text,
-          lang: chunk.lang,
-          line: chunk.line,
-          defaultKeep: chunk.label === "keep"
-        }));
+        .map((chunk) => {
+          const compact = {
+            id: chunk.id,
+            text: chunk.text,
+            line: chunk.line
+          };
+          if (chunk.label === "keep") compact.keep = 1;
+          return compact;
+        });
     }
 
     function sanitizeRanges(ranges, chunks) {
@@ -6768,6 +7001,78 @@
       await navigator.clipboard.writeText(text);
       toast("标注已复制");
     });
+
+    els.manualMarkLoad?.addEventListener("click", loadManualMarker);
+    els.manualMarkApply?.addEventListener("click", applyManualMarkerToEditor);
+    els.manualMarkClear?.addEventListener("click", clearManualMarkerLayers);
+    els.manualMarker?.addEventListener("contextmenu", (event) => {
+      if (event.target.closest(".manual-mark-unit[data-manual-id]")) event.preventDefault();
+    });
+    els.manualMarker?.addEventListener("pointerdown", (event) => {
+      const unitElement = event.target.closest(".manual-mark-unit[data-manual-id]");
+      if (!unitElement) return;
+      const unit = state.manualMarkUnits[Number(unitElement.dataset.manualId)];
+      if (!unit) return;
+      state.manualMarkPointerStart = { x: event.clientX, y: event.clientY, id: Number(unitElement.dataset.manualId) };
+      state.manualMarkLongPressFired = false;
+      state.manualMarkDragging = false;
+      state.manualMarkScroll = false;
+      state.manualMarkTargetType = unit.type === "broad" ? "plain" : "broad";
+      state.manualMarkTouched.clear();
+      window.clearTimeout(state.manualMarkLongPressTimer);
+      state.manualMarkLongPressTimer = window.setTimeout(() => {
+        const latest = state.manualMarkUnits[Number(unitElement.dataset.manualId)];
+        state.manualMarkLongPressFired = true;
+        state.manualMarkDragging = true;
+        state.manualMarkTargetType = latest?.type === "core" ? "plain" : "core";
+        state.manualMarkTouched.clear();
+        clearSelection();
+        setManualMarkTypeByElement(unitElement, state.manualMarkTargetType);
+      }, 450);
+      if (event.pointerType !== "touch") {
+        event.preventDefault();
+        clearSelection();
+        els.manualMarker.setPointerCapture(event.pointerId);
+      }
+    });
+    els.manualMarker?.addEventListener("pointermove", (event) => {
+      if (!state.manualMarkPointerStart && !state.manualMarkDragging) return;
+      if (state.manualMarkScroll) return;
+      const distance = state.manualMarkPointerStart
+        ? Math.hypot(event.clientX - state.manualMarkPointerStart.x, event.clientY - state.manualMarkPointerStart.y)
+        : 0;
+      const dx = state.manualMarkPointerStart ? event.clientX - state.manualMarkPointerStart.x : 0;
+      const dy = state.manualMarkPointerStart ? event.clientY - state.manualMarkPointerStart.y : 0;
+      if (event.pointerType === "touch" && !state.manualMarkLongPressFired && !state.manualMarkDragging && Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx) * 1.25) {
+        state.manualMarkScroll = true;
+        window.clearTimeout(state.manualMarkLongPressTimer);
+        state.manualMarkLongPressTimer = 0;
+        return;
+      }
+      event.preventDefault();
+      clearSelection();
+      if (!state.manualMarkLongPressFired && !state.manualMarkDragging && distance > 8) {
+        window.clearTimeout(state.manualMarkLongPressTimer);
+        state.manualMarkLongPressTimer = 0;
+        state.manualMarkDragging = true;
+        const startElement = els.manualMarker.querySelector(`.manual-mark-unit[data-manual-id="${state.manualMarkPointerStart.id}"]`);
+        setManualMarkTypeByElement(startElement, state.manualMarkTargetType);
+      }
+      if (state.manualMarkDragging) {
+        setManualMarkTypeByElement(manualMarkElementAtPoint(event.clientX, event.clientY), state.manualMarkTargetType);
+      }
+    });
+    els.manualMarker?.addEventListener("pointerup", (event) => {
+      if (state.manualMarkScroll) {
+        finishManualMarkGesture();
+        return;
+      }
+      if (!state.manualMarkLongPressFired && !state.manualMarkDragging && state.manualMarkPointerStart) {
+        setManualMarkTypeByElement(manualMarkElementAtPoint(event.clientX, event.clientY), state.manualMarkTargetType);
+      }
+      finishManualMarkGesture(event);
+    });
+    els.manualMarker?.addEventListener("pointercancel", finishManualMarkGesture);
 
     els.reciteView.addEventListener("pointerdown", () => {
       dismissReciteHelp();
