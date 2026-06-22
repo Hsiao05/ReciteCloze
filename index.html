@@ -26,6 +26,9 @@
       --broad: #d7c8ef;
       --plain: #cfe0dd;
       --important: #df7078;
+      --anki-important: #c83f4f;
+      --anki-important-soft: rgba(200, 63, 79, 0.16);
+      --anki-important-mask: #e46f7b;
       --keep-bg: #eef6e9;
       --keep-line: #c6dfb6;
       --focus: 0 0 0 4px rgba(240, 209, 165, 0.42), 0 8px 24px rgba(166, 138, 110, 0.08);
@@ -57,6 +60,9 @@
       --broad: #9d8abe;
       --plain: #779391;
       --important: #f08b92;
+      --anki-important: #ff8a96;
+      --anki-important-soft: rgba(255, 120, 135, 0.18);
+      --anki-important-mask: rgba(198, 74, 88, 0.82);
       --keep-bg: #334436;
       --keep-line: #587251;
       --focus: 0 0 0 4px rgba(216, 182, 137, 0.3), 0 10px 26px rgba(18, 21, 29, 0.18);
@@ -279,6 +285,38 @@
     .view.active { display: block; }
 
     .config-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .config-mode-section {
+      display: grid;
+      gap: 18px;
+    }
+
+    .config-mode-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 0 4px;
+    }
+
+    .config-mode-title h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .config-mode-title .hint {
+      max-width: 560px;
+      text-align: right;
+    }
+
+    .config-mode-grid {
       display: grid;
       grid-template-columns: minmax(340px, 0.96fr) minmax(340px, 1.04fr);
       gap: 28px;
@@ -735,6 +773,35 @@
       background: rgba(53, 57, 70, 0.72);
     }
 
+    .folder-card {
+      grid-template-columns: 52px minmax(0, 1fr) 72px;
+      cursor: pointer;
+    }
+
+    .folder-icon {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      min-height: 64px;
+      border-radius: 15px;
+      color: var(--accent-ink);
+      background: linear-gradient(180deg, #f5dcb7, var(--accent));
+      font-size: 24px;
+      font-weight: 800;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.72), 0 8px 16px rgba(188, 148, 103, 0.16);
+    }
+
+    .folder-card .btn {
+      align-self: stretch;
+      min-height: 0;
+      padding-inline: 12px;
+    }
+
+    body[data-theme="dark"] .folder-icon {
+      background: linear-gradient(180deg, #d8b689, #9f7f5c);
+      color: #241a10;
+    }
+
     .cache-card.is-selected {
       background: rgba(245, 220, 183, 0.58);
       box-shadow: 0 0 0 2px rgba(233, 189, 131, 0.42), 0 12px 24px rgba(142, 120, 98, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.82);
@@ -835,7 +902,51 @@
     }
 
     .cards-actions .btn.primary-wide {
-      grid-column: 1 / -1;
+      grid-column: auto;
+    }
+
+    .folder-pick-list {
+      display: grid;
+      gap: 8px;
+      max-height: min(48vh, 360px);
+      margin: 12px 0;
+      overflow: auto;
+      padding: 2px;
+    }
+
+    .folder-pick-option {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 14px;
+      color: var(--ink);
+      background: rgba(255, 253, 248, 0.62);
+      box-shadow: var(--shadow-pressed);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    body[data-theme="dark"] .folder-pick-option {
+      background: rgba(31, 35, 45, 0.88);
+    }
+
+    .folder-pick-option strong,
+    .folder-pick-option span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .folder-pick-option span {
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .cards-empty {
@@ -1100,6 +1211,483 @@
       box-shadow: var(--shadow-pressed);
     }
 
+    .anki-import-panel {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255, 253, 248, 0.58);
+      box-shadow: var(--shadow-pressed);
+    }
+
+    .anki-import-title {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 760;
+    }
+
+    .anki-import-panel .hint { margin-bottom: 14px; }
+
+    .anki-csv-preview {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .anki-column-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .anki-range-picker {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .anki-range-picker label {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 650;
+      gap: 8px;
+    }
+
+    .anki-range-picker input {
+      height: 42px;
+      font-size: 15px;
+    }
+
+    .anki-column-group {
+      min-width: 0;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--panel-soft);
+      box-shadow: var(--shadow-pressed);
+    }
+
+    .anki-column-group-title {
+      margin-bottom: 10px;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .anki-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 14px;
+      font-weight: 520;
+      color: var(--ink);
+    }
+
+    .anki-check input {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      accent-color: var(--accent);
+      box-shadow: none;
+    }
+
+    .manual-anki-rows {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .manual-anki-pager {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.58);
+      box-shadow: var(--shadow-pressed);
+    }
+
+    body[data-theme="dark"] .manual-anki-pager {
+      background: rgba(31, 35, 45, 0.88);
+    }
+
+    .manual-anki-pager .hint {
+      min-width: 0;
+      font-weight: 700;
+    }
+
+    .manual-anki-pager-actions {
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .manual-anki-pager-actions .btn {
+      min-height: 36px;
+      padding-inline: 12px;
+    }
+
+    .manual-anki-row {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 18px;
+      background: var(--panel-soft);
+      box-shadow: var(--shadow-pressed);
+    }
+
+    body[data-theme="dark"] .manual-anki-row {
+      background: rgba(31, 35, 45, 0.88);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.06), 0 8px 18px rgba(4, 7, 12, 0.24);
+    }
+
+    .manual-anki-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .manual-anki-field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .manual-anki-field-grid label {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 650;
+      gap: 8px;
+    }
+
+    .manual-anki-field-grid textarea {
+      min-height: 86px;
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+
+    .cache-type {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: var(--accent-ink);
+      background: rgba(240, 209, 165, 0.56);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .anki-reader {
+      display: grid;
+      gap: 16px;
+      max-width: 760px;
+      margin: 0 auto;
+      padding-bottom: 146px;
+      line-height: 1.45;
+      white-space: normal;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .anki-card-stage {
+      min-height: 360px;
+      padding: clamp(20px, 4vw, 34px);
+      border-radius: 28px;
+      background: rgba(255, 253, 248, 0.82);
+      box-shadow: var(--shadow-soft);
+    }
+
+    body[data-theme="dark"] .anki-card-stage,
+    body[data-theme="dark"] .anki-row-card,
+    body[data-theme="dark"] .anki-overview-row,
+    body[data-theme="dark"] .anki-column-group,
+    body[data-theme="dark"] .anki-import-panel {
+      background: rgba(37, 41, 52, 0.92);
+      box-shadow: 0 18px 40px rgba(6, 8, 14, 0.34), inset 0 1px 1px rgba(255, 255, 255, 0.06);
+    }
+
+    .anki-card-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .anki-card-fields {
+      display: grid;
+      gap: 10px;
+    }
+
+    .anki-field {
+      display: grid;
+      grid-template-columns: minmax(72px, 0.28fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .anki-field-name {
+      color: var(--ink);
+      font-weight: 760;
+    }
+
+    .anki-field-value {
+      min-height: 28px;
+      border-radius: 9px;
+      padding: 2px 6px;
+      color: var(--ink);
+      word-break: break-word;
+      cursor: pointer;
+    }
+
+    .anki-field-value.masked {
+      color: transparent;
+      background: color-mix(in srgb, var(--plain) 82%, transparent);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.42), 0 5px 12px rgba(109, 91, 76, 0.08);
+    }
+
+    body[data-theme="dark"] .anki-field-value.masked {
+      background: rgba(104, 128, 151, 0.54);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08), 0 5px 12px rgba(4, 7, 12, 0.22);
+    }
+
+    .anki-field-value.is-marked {
+      color: var(--anki-important);
+      background: var(--anki-important-soft);
+      box-shadow: 4px 0 0 var(--anki-important) inset;
+      font-weight: 780;
+    }
+
+    .anki-field-value.masked.is-marked {
+      color: transparent;
+      background: color-mix(in srgb, var(--anki-important-mask) 72%, white);
+      box-shadow: 4px 0 0 var(--anki-important) inset, inset 0 1px 2px rgba(255, 255, 255, 0.38), 0 5px 14px rgba(200, 63, 79, 0.18);
+    }
+
+    body[data-theme="dark"] .anki-field-value.is-marked {
+      color: var(--anki-important);
+      background: var(--anki-important-soft);
+    }
+
+    body[data-theme="dark"] .anki-field-value.masked.is-marked {
+      color: transparent;
+      background: var(--anki-important-mask);
+      box-shadow: 4px 0 0 var(--anki-important) inset, inset 0 1px 2px rgba(255, 255, 255, 0.10), 0 5px 14px rgba(255, 90, 105, 0.16);
+    }
+
+    .anki-actions {
+      position: fixed;
+      left: 50%;
+      bottom: calc(var(--recite-tabs-top-from-bottom) + 8px);
+      z-index: calc(var(--recite-mode-tabs-z) - 1);
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      width: min(520px, calc(100vw - 28px));
+      margin: 0;
+      padding: 6px;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.88);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(16px);
+      transform: translateX(-50%);
+    }
+
+    body[data-theme="dark"] .anki-actions {
+      background: rgba(43, 47, 60, 0.92);
+    }
+
+    .anki-actions .btn {
+      min-height: 40px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
+
+    .anki-actions.front {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      width: min(360px, calc(100vw - 44px));
+    }
+
+    .anki-progress-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      color: var(--ink);
+      font-weight: 760;
+    }
+
+    .anki-progress-bar {
+      height: 18px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--green) 35%, var(--panel-soft));
+      box-shadow: var(--shadow-pressed);
+    }
+
+    .anki-progress-fill {
+      height: 100%;
+      width: var(--anki-progress, 0%);
+      border-radius: inherit;
+      background: var(--green);
+    }
+
+    .anki-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .anki-row-card {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 253, 248, 0.72);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .anki-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .anki-overview-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .anki-overview-tools .btn {
+      min-height: 40px;
+      padding: 0 14px;
+      font-size: 13px;
+    }
+
+    .anki-overview-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 253, 248, 0.76);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .anki-overview-row.is-selected {
+      outline: 2px solid color-mix(in srgb, var(--accent) 72%, transparent);
+    }
+
+    .anki-status-pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #e6eeed;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .anki-status-pill.learned { background: color-mix(in srgb, var(--green) 70%, white); }
+    .anki-status-pill.learning { background: color-mix(in srgb, var(--gold) 58%, white); }
+    .anki-status-pill.marked { background: color-mix(in srgb, var(--important) 44%, white); }
+
+    body[data-theme="dark"] .anki-status-pill {
+      background: rgba(94, 104, 124, 0.78);
+      color: #f5efe6;
+      box-shadow: 0 0 0 1px rgba(232, 224, 214, 0.14) inset;
+    }
+
+    body[data-theme="dark"] .anki-status-pill.learned {
+      background: rgba(112, 178, 116, 0.92);
+      color: #102116;
+    }
+
+    body[data-theme="dark"] .anki-status-pill.learning {
+      background: rgba(222, 184, 92, 0.94);
+      color: #2b1f08;
+    }
+
+    body[data-theme="dark"] .anki-status-pill.marked {
+      background: rgba(238, 123, 135, 0.95);
+      color: #2d0e13;
+    }
+
+    body[data-card-kind="anki"] .font-control,
+    body[data-card-kind="anki"] #revealAll,
+    body[data-card-kind="anki"] #resetMode,
+    body[data-card-kind="anki"] #modeHelp {
+      display: none !important;
+    }
+
+    body[data-card-kind="anki"] .mode-tabs {
+      grid-template-columns: repeat(4, minmax(64px, 1fr)) !important;
+    }
+
+    body[data-card-kind="anki"] .mode-tabs::before {
+      width: calc((100% - 10px) / 4) !important;
+    }
+
+    @media (max-width: 640px) {
+      .anki-column-picker,
+      .anki-range-picker,
+      .manual-anki-field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .anki-actions {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        width: calc(100vw - 18px);
+        gap: 5px;
+        padding: 5px;
+      }
+
+      .anki-actions .btn {
+        min-height: 36px;
+        padding: 0 4px;
+        font-size: 12px;
+      }
+
+      .anki-overview-tools {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .anki-overview-tools .btn {
+        min-height: 38px;
+        padding: 0 8px;
+        white-space: normal;
+        line-height: 1.15;
+      }
+
+      .anki-overview-row {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .anki-field {
+        grid-template-columns: 58px minmax(0, 1fr);
+      }
+    }
+
     .toast {
       position: fixed;
       right: 18px;
@@ -1240,7 +1828,7 @@
 
       .bulk-actions {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         width: 100%;
       }
 
@@ -1248,6 +1836,16 @@
         grid-template-columns: 42px minmax(0, 1fr) 42px 42px;
         gap: 8px;
         padding: 8px;
+      }
+
+      .folder-card {
+        grid-template-columns: 46px minmax(0, 1fr) 56px;
+      }
+
+      .folder-icon {
+        width: 46px;
+        min-height: 58px;
+        font-size: 20px;
       }
 
       .cache-title {
@@ -1314,7 +1912,24 @@
       }
 
       .bulk-actions {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .bulk-actions .btn,
+      .manual-anki-pager-actions .btn {
+        min-height: 34px;
+        padding-inline: 8px;
+        font-size: 12px;
+      }
+
+      .manual-anki-pager {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .manual-anki-pager-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .card-sheet-actions {
@@ -2946,6 +3561,33 @@
         backdrop-filter: none !important;
       }
     }
+
+    body[data-card-kind="anki"] .mode-tabs {
+      grid-template-columns: repeat(4, minmax(64px, 1fr)) !important;
+    }
+
+    body[data-card-kind="anki"] .anki-actions {
+      z-index: calc(var(--recite-mode-tabs-z) + 1) !important;
+    }
+
+    body[data-card-kind="anki"] .mode-tabs::before {
+      width: calc((100% - 10px) / 4) !important;
+      transform: translateX(calc(var(--active-index) * 100%)) !important;
+    }
+
+    body[data-card-kind="anki"]::after {
+      z-index: calc(var(--recite-mode-tabs-z) - 3) !important;
+    }
+
+    @media (max-width: 430px) {
+      body[data-card-kind="anki"] .mode-tabs::before {
+        width: calc((100% - 8px) / 4) !important;
+      }
+
+      body[data-card-kind="anki"] .anki-actions .btn {
+        font-size: 11px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2992,6 +3634,7 @@
             <div class="cards-bulk-bar" id="cardsBulkBar" hidden>
               <span class="bulk-count" id="cardsSelectedCount">已选择 0 张</span>
               <div class="bulk-actions">
+                <button class="btn secondary" id="exportSelectedCards" type="button">导出</button>
                 <button class="btn secondary" id="moveSelectedCards" type="button">移动</button>
                 <button class="btn danger" id="deleteSelectedCards" type="button">删除</button>
                 <button class="btn subtle" id="cancelSelectCards" type="button">取消</button>
@@ -3005,9 +3648,10 @@
           <div class="cards-list" id="cardsList" aria-label="缓存卡片"></div>
           <div class="cards-empty" id="cardsEmpty" hidden>还没有缓存卡片。生成或解析标注后会自动加入这里。</div>
           <div class="cards-actions">
-            <button class="btn primary-wide" id="exportCards" type="button">导出文件</button>
             <button class="btn secondary" id="importCards" type="button">导入文件</button>
+            <button class="btn primary-wide" id="exportCards" type="button">导出文件</button>
             <button class="btn danger" id="clearCards" type="button">清除缓存</button>
+            <button class="btn secondary" id="createFolder" type="button">新建文件夹</button>
           </div>
           <input id="importCardsFile" type="file" accept="application/json,.json" hidden>
         </div>
@@ -3016,76 +3660,132 @@
 
     <section class="view" id="configView">
       <div class="config-grid">
-        <section class="panel">
-          <div class="panel-head">
-            <h2 class="panel-title">语料与 API</h2>
+        <div class="config-mode-section">
+          <div class="config-mode-title">
+            <h2>文本背诵</h2>
+            <span class="hint">输入语料、生成遮盖标注，并按原文/一层/二层/重点/全遮进行文本背诵。</span>
           </div>
-          <div class="panel-body">
-            <label>
-              源语料
-              <textarea id="sourceText" spellcheck="false"></textarea>
-            </label>
+          <div class="config-mode-grid">
+            <section class="panel">
+              <div class="panel-head">
+                <h2 class="panel-title">语料与 API</h2>
+              </div>
+              <div class="panel-body">
+                <label>
+                  源语料
+                  <textarea id="sourceText" spellcheck="false"></textarea>
+                </label>
 
-            <div class="api-mode" id="apiModeTabs" data-api-mode="developer" aria-label="API 模式">
-              <button class="active" type="button" data-api-mode="developer">开发者的 API</button>
-              <button type="button" data-api-mode="custom">自定义 DS API</button>
-            </div>
+                <div class="api-mode" id="apiModeTabs" data-api-mode="developer" aria-label="API 模式">
+                  <button class="active" type="button" data-api-mode="developer">开发者的 API</button>
+                  <button type="button" data-api-mode="custom">自定义 DS API</button>
+                </div>
 
-            <div class="api-custom-fields" id="customApiFields" hidden>
-              <label>
-                DeepSeek API Key
-                <span class="key-field">
-                  <input id="apiKey" type="password" autocomplete="off" placeholder="sk-...">
-                  <button class="icon-button" id="toggleKey" type="button" aria-label="显示或隐藏 API key" title="显示或隐藏 API key">
-                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                  </button>
-                </span>
-              </label>
+                <div class="api-custom-fields" id="customApiFields" hidden>
+                  <label>
+                    DeepSeek API Key
+                    <span class="key-field">
+                      <input id="apiKey" type="password" autocomplete="off" placeholder="sk-...">
+                      <button class="icon-button" id="toggleKey" type="button" aria-label="显示或隐藏 API key" title="显示或隐藏 API key">
+                        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </button>
+                    </span>
+                  </label>
 
-              <label>
-                模型
-                <select id="modelName">
-                  <option value="deepseek-v4-flash">deepseek-v4-flash</option>
-                  <option value="deepseek-v4-pro">deepseek-v4-pro</option>
-                </select>
-              </label>
-              <label>
-                API 端点
-                <input id="apiEndpoint" type="text" value="https://api.deepseek.com/chat/completions">
-              </label>
-            </div>
+                  <label>
+                    模型
+                    <select id="modelName">
+                      <option value="deepseek-v4-flash">deepseek-v4-flash</option>
+                      <option value="deepseek-v4-pro">deepseek-v4-pro</option>
+                    </select>
+                  </label>
+                  <label>
+                    API 端点
+                    <input id="apiEndpoint" type="text" value="https://api.deepseek.com/chat/completions">
+                  </label>
+                </div>
 
-            <div class="button-row">
-              <button class="btn" id="generateApi" type="button">生成标注语料</button>
-              <button class="btn secondary" id="mockGenerate" type="button">隔字生成</button>
-              <button class="btn danger" id="clearSource" type="button">清空源语料</button>
-            </div>
+                <div class="button-row">
+                  <button class="btn" id="generateApi" type="button">生成标注语料</button>
+                  <button class="btn secondary" id="mockGenerate" type="button">隔字生成</button>
+                  <button class="btn danger" id="clearSource" type="button">清空源语料</button>
+                </div>
+              </div>
+            </section>
 
+            <section class="panel">
+              <div class="panel-head stack">
+                <h2 class="panel-title">标注结果</h2>
+                <span class="hint" id="notesText">可编辑后重新解析</span>
+                <div class="protocol result-protocol" aria-label="标注协议">
+                  <div class="protocol-item"><span class="swatch keep"></span><span><code>⟦...⟧</code> 结构保护</span></div>
+                  <div class="protocol-item"><span class="swatch core"></span><span><code>⟬...⟭</code> 一层核心</span></div>
+                  <div class="protocol-item"><span class="swatch broad"></span><span><code>⟪...⟫</code> 二层扩展</span></div>
+                  <div class="protocol-item"><span class="swatch"></span><span><code>|</code> 最小语言单位</span></div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div id="markedEditor" class="marked-editor" contenteditable="true" spellcheck="false" aria-label="标注结果"></div>
+                <div class="button-row">
+                  <button class="btn secondary" id="copyMarked" type="button">复制标注</button>
+                  <button class="btn secondary" id="parseAndRecite" type="button">解析并进入背诵</button>
+                </div>
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
 
-        <section class="panel">
-          <div class="panel-head stack">
-            <h2 class="panel-title">标注结果</h2>
-            <span class="hint" id="notesText">可编辑后重新解析</span>
-            <div class="protocol result-protocol" aria-label="标注协议">
-              <div class="protocol-item"><span class="swatch keep"></span><span><code>⟦...⟧</code> 结构保护</span></div>
-              <div class="protocol-item"><span class="swatch core"></span><span><code>⟬...⟭</code> 一层核心</span></div>
-              <div class="protocol-item"><span class="swatch broad"></span><span><code>⟪...⟫</code> 二层扩展</span></div>
-              <div class="protocol-item"><span class="swatch"></span><span><code>|</code> 最小语言单位</span></div>
-            </div>
+        <div class="config-mode-section">
+          <div class="config-mode-title">
+            <h2>闪卡背诵</h2>
+            <span class="hint">导入 CSV 或手动定义字段，生成正反面闪卡并使用 Anki 模式背诵。</span>
           </div>
-          <div class="panel-body">
-            <div id="markedEditor" class="marked-editor" contenteditable="true" spellcheck="false" aria-label="标注结果"></div>
-            <div class="button-row">
-              <button class="btn secondary" id="copyMarked" type="button">复制标注</button>
-              <button class="btn secondary" id="parseAndRecite" type="button">解析并进入背诵</button>
-            </div>
+          <div class="config-mode-grid">
+            <section class="panel">
+              <div class="panel-head stack">
+                <h2 class="panel-title">CSV 导入闪卡</h2>
+                <span class="hint">导入 CSV 后选择正面和反面字段，会另存为一组 Anki 类型卡片。</span>
+              </div>
+              <div class="panel-body">
+                <div class="anki-import-panel">
+                  <p class="anki-import-title">CSV 导入</p>
+                  <div class="hint">第一行会作为字段名。建议用 UTF-8 CSV；如果字段里有逗号，请用标准双引号包裹。</div>
+                  <div class="button-row">
+                    <button class="btn secondary" id="ankiChooseCsv" type="button">选择 CSV</button>
+                    <button class="btn" id="ankiCreateDeck" type="button" disabled>生成 Anki 卡片</button>
+                  </div>
+                  <input id="ankiCsvFile" type="file" accept=".csv,text/csv" hidden>
+                  <div class="anki-csv-preview" id="ankiCsvPreview"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head stack">
+                <h2 class="panel-title">手动闪卡</h2>
+                <span class="hint">无法制作 CSV 时，可手动定义字段并逐条添加卡片。</span>
+              </div>
+              <div class="panel-body">
+                <div class="anki-import-panel">
+                  <p class="anki-import-title">字段与卡片</p>
+                  <label>
+                    字段名
+                    <input id="manualAnkiFields" type="text" value="正面,反面" placeholder="例如：单词,读音,释义">
+                  </label>
+                  <div class="button-row">
+                    <button class="btn secondary" id="manualAnkiApplyFields" type="button">应用字段</button>
+                    <button class="btn secondary" id="manualAnkiAddRow" type="button">添加卡片</button>
+                    <button class="btn" id="manualAnkiCreateDeck" type="button">生成闪卡</button>
+                  </div>
+                  <div class="manual-anki-rows" id="manualAnkiRows"></div>
+                </div>
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
       </div>
     </section>
 
@@ -3129,9 +3829,22 @@
     </div>
   </div>
 
+  <div class="card-sheet" id="folderSheet" hidden>
+    <div class="card-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="folderSheetTitle">
+      <div class="card-sheet-title" id="folderSheetTitle">选择文件夹</div>
+      <div class="card-sheet-meta" id="folderSheetMeta"></div>
+      <div class="folder-pick-list" id="folderPickList"></div>
+      <div class="card-sheet-actions">
+        <button class="btn secondary" id="folderCreateFromSheet" type="button">新建文件夹</button>
+        <button class="btn subtle" id="closeFolderSheet" type="button">取消</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const STORAGE_KEY = "beisong-wanxing-settings";
     const CARDS_STORAGE_KEY = "beisong-wanxing-cards";
+    const FOLDERS_STORAGE_KEY = "beisong-wanxing-folders";
     const DEVELOPER_API_KEY = "";
     const DEVELOPER_API_ENDPOINT = "https://api.deepseek.com/chat/completions";
     const DEVELOPER_MODEL = "deepseek-v4-flash";
@@ -3169,15 +3882,29 @@
       mode: "none",
       markedText: "",
       activeCardId: "",
-      activeFolder: "all",
+      activeFolder: "__root",
       cards: [],
+      folders: [],
       cardSelectionMode: false,
       selectedCardIds: new Set(),
       managingCardId: "",
+      folderPickerTarget: null,
       cardLongPressTimer: 0,
       cardLongPressFired: false,
       cardPointerStart: null,
       units: [],
+      ankiImport: null,
+      manualAnkiRows: [],
+      manualAnkiPage: 0,
+      manualAnkiPageSize: 20,
+      ankiMode: "front",
+      ankiQueue: [],
+      ankiHistory: [],
+      ankiSelection: new Set(),
+      ankiSelectionMode: false,
+      ankiPointerStart: null,
+      ankiLongPressTimer: 0,
+      ankiLongPressFired: false,
       dragging: false,
       dragHiddenValue: true,
       markDragging: false,
@@ -3206,6 +3933,7 @@
       toggleSelectCards: document.getElementById("toggleSelectCards"),
       cardsBulkBar: document.getElementById("cardsBulkBar"),
       cardsSelectedCount: document.getElementById("cardsSelectedCount"),
+      exportSelectedCards: document.getElementById("exportSelectedCards"),
       moveSelectedCards: document.getElementById("moveSelectedCards"),
       deleteSelectedCards: document.getElementById("deleteSelectedCards"),
       cancelSelectCards: document.getElementById("cancelSelectCards"),
@@ -3215,6 +3943,7 @@
       importCards: document.getElementById("importCards"),
       importCardsFile: document.getElementById("importCardsFile"),
       clearCards: document.getElementById("clearCards"),
+      createFolder: document.getElementById("createFolder"),
       cardSheet: document.getElementById("cardSheet"),
       cardSheetTitle: document.getElementById("cardSheetTitle"),
       cardSheetMeta: document.getElementById("cardSheetMeta"),
@@ -3222,6 +3951,12 @@
       exportSingleCard: document.getElementById("exportSingleCard"),
       deleteSingleCard: document.getElementById("deleteSingleCard"),
       closeCardSheet: document.getElementById("closeCardSheet"),
+      folderSheet: document.getElementById("folderSheet"),
+      folderSheetTitle: document.getElementById("folderSheetTitle"),
+      folderSheetMeta: document.getElementById("folderSheetMeta"),
+      folderPickList: document.getElementById("folderPickList"),
+      folderCreateFromSheet: document.getElementById("folderCreateFromSheet"),
+      closeFolderSheet: document.getElementById("closeFolderSheet"),
       status: document.getElementById("status"),
       statusText: document.getElementById("statusText"),
       themeToggle: document.getElementById("themeToggle"),
@@ -3239,6 +3974,15 @@
       copyMarked: document.getElementById("copyMarked"),
       parseAndRecite: document.getElementById("parseAndRecite"),
       notesText: document.getElementById("notesText"),
+      ankiChooseCsv: document.getElementById("ankiChooseCsv"),
+      ankiCsvFile: document.getElementById("ankiCsvFile"),
+      ankiCsvPreview: document.getElementById("ankiCsvPreview"),
+      ankiCreateDeck: document.getElementById("ankiCreateDeck"),
+      manualAnkiFields: document.getElementById("manualAnkiFields"),
+      manualAnkiApplyFields: document.getElementById("manualAnkiApplyFields"),
+      manualAnkiAddRow: document.getElementById("manualAnkiAddRow"),
+      manualAnkiCreateDeck: document.getElementById("manualAnkiCreateDeck"),
+      manualAnkiRows: document.getElementById("manualAnkiRows"),
       modeTabs: document.getElementById("modeTabs"),
       modeHelp: document.getElementById("modeHelp"),
       revealAll: document.getElementById("revealAll"),
@@ -3347,8 +4091,70 @@
       return text ? `${text.slice(0, 52)}${text.length > 52 ? "……" : ""}` : "未命名卡片";
     }
 
+    function ankiRowTitle(row, fields) {
+      const values = row?.values || {};
+      const picked = fields.map((field) => values[field]).find((value) => String(value || "").trim());
+      return String(picked || row?.id || "空记录").slice(0, 64);
+    }
+
+    function normalizeAnkiRow(raw, index, columns) {
+      const values = raw && typeof raw.values === "object" ? raw.values : raw || {};
+      const normalizedValues = {};
+      for (const column of columns) normalizedValues[column] = String(values[column] ?? "");
+      const markedFields = Array.isArray(raw?.markedFields)
+        ? raw.markedFields.filter((field) => columns.includes(field))
+        : [];
+      const hiddenFields = Array.isArray(raw?.hiddenFields)
+        ? raw.hiddenFields.filter((field) => columns.includes(field))
+        : [];
+      const revealedFields = Array.isArray(raw?.revealedFields)
+        ? raw.revealedFields.filter((field) => columns.includes(field))
+        : [];
+      return {
+        id: typeof raw?.id === "string" && raw.id ? raw.id : `row-${index + 1}`,
+        values: normalizedValues,
+        ef: Math.max(1.3, Number(raw?.ef) || 2.5),
+        interval: Math.max(0, Number(raw?.interval) || 0),
+        nextDate: Math.max(0, Number(raw?.nextDate) || 0),
+        status: [0, 1, 2].includes(Number(raw?.status)) ? Number(raw.status) : 0,
+        studiedAt: Number(raw?.studiedAt) || 0,
+        markedFields: [...new Set(markedFields)],
+        hiddenFields: [...new Set(hiddenFields)],
+        revealedFields: [...new Set(revealedFields)]
+      };
+    }
+
     function normalizeCard(raw) {
       if (!raw || typeof raw !== "object") return null;
+      if (raw.type === "anki") {
+        const columns = Array.isArray(raw.columns) ? raw.columns.map((item) => String(item || "").trim()).filter(Boolean) : [];
+        const rows = Array.isArray(raw.rows) ? raw.rows : [];
+        if (!columns.length || !rows.length) return null;
+        const frontFields = Array.isArray(raw.frontFields) ? raw.frontFields.filter((field) => columns.includes(field)) : [columns[0]];
+        const backFields = Array.isArray(raw.backFields) ? raw.backFields.filter((field) => columns.includes(field)) : columns.slice(1);
+        const normalizedRows = rows.map((row, index) => normalizeAnkiRow(row, index, columns));
+        const signature = raw.signature || hashText(`anki\n${columns.join("|")}\n${JSON.stringify(normalizedRows.map((row) => row.values))}`);
+        const now = Date.now();
+        return {
+          id: typeof raw.id === "string" && raw.id ? raw.id : `anki-${signature}-${now.toString(36)}`,
+          type: "anki",
+          signature,
+          title: typeof raw.title === "string" && raw.title ? raw.title : `Anki CSV ${normalizedRows.length} 条`,
+          sourceText: "",
+          markedText: "",
+          notes: typeof raw.notes === "string" ? raw.notes : "",
+          source: "anki",
+          folder: typeof raw.folder === "string" ? raw.folder.trim() : "",
+          createdAt: Number(raw.createdAt) || now,
+          updatedAt: Number(raw.updatedAt) || now,
+          lastRecitedAt: Number(raw.lastRecitedAt) || 0,
+          columns,
+          frontFields: frontFields.length ? frontFields : [columns[0]],
+          backFields: backFields.length ? backFields : columns.filter((field) => field !== frontFields[0]),
+          rows: normalizedRows,
+          currentRowId: typeof raw.currentRowId === "string" ? raw.currentRowId : ""
+        };
+      }
       const sourceText = typeof raw.sourceText === "string" ? raw.sourceText : "";
       const markedText = typeof raw.markedText === "string" ? raw.markedText : "";
       if (!sourceText && !markedText) return null;
@@ -3357,6 +4163,7 @@
       return {
         id: typeof raw.id === "string" && raw.id ? raw.id : `card-${signature}-${now.toString(36)}`,
         signature,
+        type: "text",
         title: typeof raw.title === "string" && raw.title ? raw.title : cardExcerpt(sourceText, markedText),
         sourceText,
         markedText,
@@ -3374,10 +4181,18 @@
       return normalized || "未分类";
     }
 
+    function normalizeFolderName(folder) {
+      return String(folder || "").trim();
+    }
+
     function getCardFolders() {
       const counts = new Map();
+      for (const folder of state.folders) {
+        const key = normalizeFolderName(folder);
+        if (key) counts.set(key, counts.get(key) || 0);
+      }
       for (const card of state.cards) {
-        const key = card.folder || "";
+        const key = normalizeFolderName(card.folder);
         counts.set(key, (counts.get(key) || 0) + 1);
       }
       return [...counts.entries()].sort((a, b) => {
@@ -3389,6 +4204,7 @@
 
     function getVisibleCards() {
       const sorted = [...state.cards].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      if (state.activeFolder === "__root") return sorted.filter((card) => !(card.folder || "").trim());
       if (state.activeFolder === "all") return sorted;
       return sorted.filter((card) => (card.folder || "") === state.activeFolder);
     }
@@ -3420,19 +4236,48 @@
     }
 
     function askFolderName(currentFolder = "") {
-      const value = window.prompt("输入分组/文件夹名称；留空为未分类", currentFolder || "");
+      const value = window.prompt("输入文件夹名称", currentFolder || "");
       if (value === null) return null;
-      return value.trim();
+      return normalizeFolderName(value);
+    }
+
+    function saveFolders(render = true) {
+      state.folders = [...new Set(state.folders.map(normalizeFolderName).filter(Boolean))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+      localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(state.folders));
+      if (render) renderCards();
+    }
+
+    function loadFolders() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(FOLDERS_STORAGE_KEY) || "[]");
+        state.folders = Array.isArray(parsed) ? [...new Set(parsed.map(normalizeFolderName).filter(Boolean))] : [];
+      } catch {
+        state.folders = [];
+        localStorage.removeItem(FOLDERS_STORAGE_KEY);
+      }
+      saveFolders(false);
+    }
+
+    function ensureFolder(folder) {
+      const normalized = normalizeFolderName(folder);
+      if (!normalized) return "";
+      if (!state.folders.includes(normalized)) {
+        state.folders.push(normalized);
+        saveFolders(false);
+      }
+      return normalized;
     }
 
     function moveCardsToFolder(cards, folder) {
       if (!cards.length) return;
+      const normalized = ensureFolder(folder);
       const now = Date.now();
       for (const card of cards) {
-        card.folder = folder;
+        card.folder = normalized;
         card.updatedAt = now;
       }
       saveCards();
+      return normalized;
     }
 
     function saveCards() {
@@ -3480,34 +4325,65 @@
       if (!els.cardsList) return;
       clearMissingSelectedCards();
       const folders = getCardFolders();
-      if (state.activeFolder !== "all" && !folders.some(([folder]) => folder === state.activeFolder)) {
-        state.activeFolder = "all";
+      const namedFolders = folders.filter(([folder]) => folder);
+      if (!["__root", "all"].includes(state.activeFolder) && !namedFolders.some(([folder]) => folder === state.activeFolder)) {
+        state.activeFolder = "__root";
       }
       const visibleCards = getVisibleCards();
       const selectedCount = state.selectedCardIds.size;
-      els.folderStrip.innerHTML = [
-        `<button class="folder-chip ${state.activeFolder === "all" ? "active" : ""}" type="button" data-folder-value="all">全部 ${state.cards.length}</button>`,
-        ...folders.map(([folder, count]) => `<button class="folder-chip ${state.activeFolder === folder ? "active" : ""}" type="button" data-folder-value="${escapeHtml(folder)}">${escapeHtml(displayFolder(folder))} ${count}</button>`)
-      ].join("");
+      if (state.activeFolder === "__root") {
+        els.folderStrip.innerHTML = `<button class="folder-chip active" type="button" data-folder-value="__root">文件夹</button>`;
+      } else {
+        els.folderStrip.innerHTML = [
+          `<button class="folder-chip" type="button" data-folder-back="1">返回</button>`,
+          `<button class="folder-chip active" type="button" data-folder-value="${escapeHtml(state.activeFolder)}">${state.activeFolder === "all" ? `全部 ${state.cards.length}` : `${escapeHtml(displayFolder(state.activeFolder))} ${visibleCards.length}`}</button>`
+        ].join("");
+      }
       els.cardsList.classList.toggle("is-selecting", state.cardSelectionMode);
       els.cardsBulkBar.hidden = !state.cardSelectionMode;
       els.cardsSelectedCount.textContent = `已选择 ${selectedCount} 张`;
       els.toggleSelectCards.textContent = state.cardSelectionMode ? "完成" : "多选管理";
+      els.clearCards.textContent = !["__root", "all"].includes(state.activeFolder) ? "删除文件夹" : "清除缓存";
       els.cardsSummary.textContent = state.cards.length
-        ? `共 ${state.cards.length} 张，当前分类 ${visibleCards.length} 张`
+        ? (state.activeFolder === "__root" ? `共 ${state.cards.length} 张，文件夹 ${namedFolders.length} 个，未分类 ${visibleCards.length} 张` : `共 ${state.cards.length} 张，当前分类 ${visibleCards.length} 张`)
         : "浏览器内自动缓存当前语料和标注";
-      els.cardsEmpty.hidden = visibleCards.length > 0;
+      const folderCards = state.activeFolder === "__root"
+        ? [
+            { value: "all", title: "全部", count: state.cards.length, meta: `所有缓存卡片 · ${state.cards.length} 张` },
+            ...namedFolders.map(([folder, count]) => ({ value: folder, title: displayFolder(folder), count, meta: `文件夹 · ${count} 张` }))
+          ]
+        : [];
+      els.cardsEmpty.hidden = folderCards.length > 0 || visibleCards.length > 0;
       els.cardsEmpty.textContent = state.cards.length ? "当前分类没有卡片。" : "还没有缓存卡片。生成或解析标注后会自动加入这里。";
-      els.cardsList.innerHTML = visibleCards.map((card) => {
+      const folderHtml = folderCards.map((folder) => `
+        <article class="cache-card folder-card" data-folder-open="${escapeHtml(folder.value)}">
+          <div class="folder-icon" aria-hidden="true">夹</div>
+          <div class="cache-card-main">
+            <div class="cache-title">${escapeHtml(folder.title)}</div>
+            <div class="cache-type">${folder.value === "all" ? "默认文件夹" : "文件夹"}</div>
+            <div class="cache-folder">${escapeHtml(folder.meta)}</div>
+          </div>
+          <button class="btn" type="button" data-folder-open="${escapeHtml(folder.value)}">打开</button>
+        </article>
+      `).join("");
+      const cardHtml = visibleCards.map((card) => {
         const last = card.lastRecitedAt ? `${formatDateTime(card.lastRecitedAt)}（${formatRelativeTime(card.lastRecitedAt)}）` : "还没有背诵记录";
         const selected = state.selectedCardIds.has(card.id);
+        const isAnki = card.type === "anki";
+        const learnedCount = isAnki ? card.rows.filter((row) => row.status > 0).length : 0;
+        const markedCount = isAnki ? card.rows.filter((row) => row.markedFields.length).length : 0;
+        const title = isAnki ? card.title : (card.title || cardExcerpt(card.sourceText, card.markedText));
+        const meta = isAnki
+          ? `Anki · ${card.rows.length} 条 · 已学 ${learnedCount} · 重点 ${markedCount}`
+          : `文本背诵 · ${displayFolder(card.folder)}`;
         return `
           <article class="cache-card ${selected ? "is-selected" : ""}" data-card-id="${escapeHtml(card.id)}">
             <button class="card-select-check" type="button" data-card-action="toggle-select" aria-label="${selected ? "取消选择" : "选择"}卡片">${selected ? "✓" : ""}</button>
             <button class="btn danger" type="button" data-card-action="delete">删除</button>
             <div class="cache-card-main">
-              <div class="cache-title">${escapeHtml(card.title || cardExcerpt(card.sourceText, card.markedText))}</div>
-              <div class="cache-folder">${escapeHtml(displayFolder(card.folder))}</div>
+              <div class="cache-title">${escapeHtml(title)}</div>
+              <div class="cache-type">${isAnki ? "Anki 卡片" : "文本背诵"}</div>
+              <div class="cache-folder">${meta}</div>
               <div class="cache-meta">上次背诵时间：<br>${escapeHtml(last)}</div>
             </div>
             <button class="btn subtle" type="button" data-card-action="config">配置</button>
@@ -3515,6 +4391,7 @@
           </article>
         `;
       }).join("");
+      els.cardsList.innerHTML = folderHtml + cardHtml;
     }
 
     function openCardManager(card) {
@@ -3534,18 +4411,84 @@
       return state.cards.find((card) => card.id === state.managingCardId);
     }
 
+    function folderPickerCards() {
+      const ids = new Set(state.folderPickerTarget || []);
+      return state.cards.filter((card) => ids.has(card.id));
+    }
+
+    function renderFolderPicker() {
+      if (!els.folderPickList) return;
+      const cards = folderPickerCards();
+      const folders = getCardFolders();
+      const unfiledCount = state.cards.filter((card) => !normalizeFolderName(card.folder)).length;
+      const options = [
+        ["", unfiledCount],
+        ...folders.filter(([folder]) => folder)
+      ];
+      els.folderSheetMeta.textContent = cards.length > 1 ? `将 ${cards.length} 张卡片移动到：` : "将这张卡片移动到：";
+      els.folderPickList.innerHTML = options.map(([folder, count]) => `
+        <button class="folder-pick-option" type="button" data-folder-pick="${escapeHtml(folder)}">
+          <strong>${escapeHtml(displayFolder(folder))}</strong>
+          <span>${count} 张</span>
+        </button>
+      `).join("");
+    }
+
+    function openFolderPicker(cards) {
+      if (!cards.length) return;
+      state.folderPickerTarget = cards.map((card) => card.id);
+      renderFolderPicker();
+      els.folderSheet.hidden = false;
+    }
+
+    function closeFolderPicker() {
+      state.folderPickerTarget = null;
+      els.folderSheet.hidden = true;
+    }
+
+    function applyFolderToPickerTarget(folder) {
+      const cards = folderPickerCards();
+      if (!cards.length) {
+        closeFolderPicker();
+        return;
+      }
+      const normalized = normalizeFolderName(folder);
+      state.activeFolder = normalized || "__root";
+      state.selectedCardIds.clear();
+      state.cardSelectionMode = false;
+      moveCardsToFolder(cards, normalized);
+      closeFolderPicker();
+      const managing = getManagingCard();
+      if (managing) openCardManager(managing);
+      toast(`已移动 ${cards.length} 张卡片`);
+    }
+
+    function createFolderFromPrompt(assignPending = false) {
+      const folder = askFolderName("");
+      if (folder === null) return;
+      if (!folder) {
+        toast("文件夹名称不能为空");
+        return;
+      }
+      const existed = state.folders.includes(folder) || state.cards.some((card) => normalizeFolderName(card.folder) === folder);
+      ensureFolder(folder);
+      state.activeFolder = "__root";
+      if (assignPending && state.folderPickerTarget?.length) {
+        applyFolderToPickerTarget(folder);
+        return;
+      }
+      saveFolders();
+      if (!els.folderSheet.hidden) renderFolderPicker();
+      toast(existed ? "文件夹已存在" : "文件夹已创建");
+    }
+
     function moveSelectedCardsToFolder() {
       const cards = getSelectedCards();
       if (!cards.length) {
         toast("请先选择卡片");
         return;
       }
-      const folder = askFolderName(cards[0]?.folder || "");
-      if (folder === null) return;
-      moveCardsToFolder(cards, folder);
-      state.activeFolder = folder;
-      setCardSelectionMode(false);
-      toast(`已移动 ${cards.length} 张卡片`);
+      openFolderPicker(cards);
     }
 
     function deleteSelectedCards() {
@@ -3563,16 +4506,41 @@
       toast(`已删除 ${cards.length} 张卡片`);
     }
 
+    function clearCardsOrDeleteActiveFolder() {
+      const folder = normalizeFolderName(state.activeFolder);
+      if (folder && !["__root", "all"].includes(folder)) {
+        const folderCards = state.cards.filter((card) => normalizeFolderName(card.folder) === folder);
+        if (!window.confirm(`确定删除文件夹“${displayFolder(folder)}”及其中 ${folderCards.length} 张卡片吗？`)) return;
+        const deletedIds = new Set(folderCards.map((card) => card.id));
+        state.cards = state.cards.filter((card) => normalizeFolderName(card.folder) !== folder);
+        state.folders = state.folders.filter((item) => item !== folder);
+        if (deletedIds.has(state.activeCardId)) state.activeCardId = "";
+        state.activeFolder = "__root";
+        state.selectedCardIds.clear();
+        state.cardSelectionMode = false;
+        saveFolders(false);
+        saveCards();
+        toast("文件夹已删除");
+        return;
+      }
+      if (!state.cards.length) {
+        toast("没有可清除的缓存");
+        return;
+      }
+      if (!window.confirm("确定清除所有缓存卡片吗？")) return;
+      state.cards = [];
+      state.activeCardId = "";
+      state.activeFolder = "__root";
+      state.selectedCardIds.clear();
+      state.cardSelectionMode = false;
+      saveCards();
+      toast("缓存已清除");
+    }
+
     function moveManagingCard() {
       const card = getManagingCard();
       if (!card) return;
-      const folder = askFolderName(card.folder || "");
-      if (folder === null) return;
-      moveCardsToFolder([card], folder);
-      state.activeFolder = folder;
-      renderCards();
-      openCardManager(card);
-      toast("卡片分组已更新");
+      openFolderPicker([card]);
     }
 
     function deleteManagingCard() {
@@ -3588,6 +4556,17 @@
 
     function loadCardIntoEditor(card) {
       if (!card) return;
+      if (card.type === "anki") {
+        document.body.dataset.cardKind = "anki";
+        state.activeCardId = card.id;
+        prepareAnkiQueue(card);
+        setAnkiMode("front", false);
+        renderAnkiReader();
+        resetReciteHelpForCurrentMaterial();
+        return;
+      }
+      document.body.dataset.cardKind = "text";
+      syncTextTabs();
       els.sourceText.value = card.sourceText || "";
       state.markedText = card.markedText || "";
       els.markedEditor.textContent = state.markedText;
@@ -3604,6 +4583,735 @@
       card.lastRecitedAt = Date.now();
       card.updatedAt = Date.now();
       saveCards();
+    }
+
+    function parseCsvText(text) {
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+      const normalized = String(text || "").replace(/\r\n?/g, "\n");
+      for (let i = 0; i < normalized.length; i++) {
+        const char = normalized[i];
+        const next = normalized[i + 1];
+        if (inQuotes) {
+          if (char === '"' && next === '"') {
+            cell += '"';
+            i += 1;
+          } else if (char === '"') {
+            inQuotes = false;
+          } else {
+            cell += char;
+          }
+          continue;
+        }
+        if (char === '"') {
+          inQuotes = true;
+        } else if (char === ",") {
+          row.push(cell.trim());
+          cell = "";
+        } else if (char === "\n") {
+          row.push(cell.trim());
+          if (row.some((value) => value !== "")) rows.push(row);
+          row = [];
+          cell = "";
+        } else {
+          cell += char;
+        }
+      }
+      row.push(cell.trim());
+      if (row.some((value) => value !== "")) rows.push(row);
+      return rows;
+    }
+
+    function uniqueColumnNames(headers) {
+      const counts = new Map();
+      return headers.map((header, index) => {
+        const base = String(header || "").trim() || `字段${index + 1}`;
+        const count = counts.get(base) || 0;
+        counts.set(base, count + 1);
+        return count ? `${base}_${count + 1}` : base;
+      });
+    }
+
+    function renderAnkiCsvPreview() {
+      if (!state.ankiImport) {
+        els.ankiCsvPreview.innerHTML = "";
+        els.ankiCreateDeck.disabled = true;
+        return;
+      }
+      const { columns, rows, fileName } = state.ankiImport;
+      els.ankiCreateDeck.disabled = false;
+      const checks = (name, defaults) => columns.map((column) => `
+        <label class="anki-check">
+          <input type="checkbox" data-anki-field="${escapeHtml(name)}" value="${escapeHtml(column)}" ${defaults.includes(column) ? "checked" : ""}>
+          <span>${escapeHtml(column)}</span>
+        </label>
+      `).join("");
+      els.ankiCsvPreview.innerHTML = `
+        <div class="hint">已读取 ${escapeHtml(fileName)}：${rows.length} 条记录，${columns.length} 个字段。</div>
+        <div class="anki-range-picker">
+          <label>
+            起始行
+            <input id="ankiRangeStart" type="number" min="1" max="${rows.length}" value="1">
+          </label>
+          <label>
+            结束行
+            <input id="ankiRangeEnd" type="number" min="1" max="${rows.length}" value="${rows.length}">
+          </label>
+        </div>
+        <div class="anki-column-picker">
+          <div class="anki-column-group">
+            <div class="anki-column-group-title">正面显示字段</div>
+            ${checks("front", columns.slice(0, 1))}
+          </div>
+          <div class="anki-column-group">
+            <div class="anki-column-group-title">反面显示字段</div>
+            ${checks("back", columns.slice(1))}
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadAnkiCsvFile(file) {
+      if (!file) return;
+      try {
+        const table = parseCsvText(await file.text());
+        if (table.length < 2) throw new Error("empty csv");
+        const columns = uniqueColumnNames(table[0]);
+        const rows = table.slice(1).map((cells, index) => {
+          const values = {};
+          columns.forEach((column, columnIndex) => {
+            values[column] = String(cells[columnIndex] ?? "");
+          });
+          return normalizeAnkiRow({ id: `row-${index + 1}`, values }, index, columns);
+        });
+        state.ankiImport = { fileName: file.name || "cards.csv", columns, rows };
+        if (els.manualAnkiFields) els.manualAnkiFields.value = columns.join(", ");
+        state.manualAnkiRows = rows.map((row, index) => ({
+          id: `manual-import-${Date.now().toString(36)}-${index + 1}`,
+          values: { ...row.values }
+        }));
+        state.manualAnkiPage = 0;
+        renderAnkiCsvPreview();
+        renderManualAnkiRows();
+        toast(`已读取 ${rows.length} 条 CSV 记录`);
+      } catch {
+        state.ankiImport = null;
+        renderAnkiCsvPreview();
+        toast("CSV 解析失败，请检查文件格式");
+      } finally {
+        els.ankiCsvFile.value = "";
+      }
+    }
+
+    function checkedAnkiFields(kind) {
+      return [...els.ankiCsvPreview.querySelectorAll(`input[data-anki-field="${kind}"]:checked`)].map((input) => input.value);
+    }
+
+    function createAnkiDeckFromImport() {
+      if (!state.ankiImport) {
+        toast("请先选择 CSV 文件");
+        return;
+      }
+      const { columns, rows, fileName } = state.ankiImport;
+      const frontFields = checkedAnkiFields("front");
+      const backFields = checkedAnkiFields("back");
+      const startInput = els.ankiCsvPreview.querySelector("#ankiRangeStart");
+      const endInput = els.ankiCsvPreview.querySelector("#ankiRangeEnd");
+      const start = Math.max(1, Math.min(rows.length, Number(startInput?.value) || 1));
+      const end = Math.max(start, Math.min(rows.length, Number(endInput?.value) || rows.length));
+      const scopedRows = rows.slice(start - 1, end).map((row, index) => normalizeAnkiRow({
+        ...row,
+        id: `row-${start + index}`,
+        values: row.values
+      }, start + index - 1, columns));
+      if (!frontFields.length || !backFields.length) {
+        toast("请至少选择一个正面字段和一个反面字段");
+        return;
+      }
+      const now = Date.now();
+      const card = normalizeCard({
+        type: "anki",
+        title: `${fileName.replace(/\.csv$/i, "") || "Anki CSV"} ${start}-${end}`,
+        columns,
+        rows: scopedRows,
+        frontFields,
+        backFields,
+        createdAt: now,
+        updatedAt: now
+      });
+      if (!card) {
+        toast("生成失败，CSV 内容不足");
+        return;
+      }
+      state.cards.unshift(card);
+      state.activeCardId = card.id;
+      state.ankiImport = null;
+      renderAnkiCsvPreview();
+      saveCards();
+      loadCardIntoEditor(card);
+      switchPage("recite");
+      toast(`已生成 Anki 卡片：${card.rows.length} 条`);
+    }
+
+    function manualAnkiColumns() {
+      const fields = String(els.manualAnkiFields?.value || "")
+        .split(/[,，\n]/)
+        .map((field) => field.trim())
+        .filter(Boolean);
+      return uniqueColumnNames(fields.length ? fields : ["正面", "反面"]);
+    }
+
+    function ensureManualAnkiRows() {
+      const columns = manualAnkiColumns();
+      if (!state.manualAnkiRows.length) {
+        state.manualAnkiRows = [{ id: `manual-${Date.now().toString(36)}`, values: Object.fromEntries(columns.map((column) => [column, ""])) }];
+      }
+      state.manualAnkiRows = state.manualAnkiRows.map((row) => {
+        const values = {};
+        columns.forEach((column) => { values[column] = row.values?.[column] || ""; });
+        return { ...row, values };
+      });
+    }
+
+    function renderManualAnkiRows() {
+      if (!els.manualAnkiRows) return;
+      ensureManualAnkiRows();
+      const columns = manualAnkiColumns();
+      const total = state.manualAnkiRows.length;
+      const pageSize = Math.max(1, Number(state.manualAnkiPageSize) || 20);
+      const pageCount = Math.max(1, Math.ceil(total / pageSize));
+      state.manualAnkiPage = Math.min(Math.max(0, Number(state.manualAnkiPage) || 0), pageCount - 1);
+      const start = state.manualAnkiPage * pageSize;
+      const visibleRows = state.manualAnkiRows.slice(start, start + pageSize);
+      const pager = total > pageSize ? `
+        <div class="manual-anki-pager">
+          <span class="hint">第 ${state.manualAnkiPage + 1} / ${pageCount} 页 · 共 ${total} 张</span>
+          <div class="manual-anki-pager-actions">
+            <button class="btn subtle" type="button" data-manual-page="prev" ${state.manualAnkiPage <= 0 ? "disabled" : ""}>上一页</button>
+            <button class="btn subtle" type="button" data-manual-page="next" ${state.manualAnkiPage >= pageCount - 1 ? "disabled" : ""}>下一页</button>
+          </div>
+        </div>
+      ` : "";
+      const rowsHtml = visibleRows.map((row, visibleIndex) => {
+        const rowIndex = start + visibleIndex;
+        return `
+        <div class="manual-anki-row" data-manual-row="${escapeHtml(row.id)}">
+          <div class="manual-anki-row-head">
+            <span>卡片 ${rowIndex + 1}</span>
+            <button class="btn subtle" type="button" data-manual-action="delete" ${state.manualAnkiRows.length <= 1 ? "disabled" : ""}>删除</button>
+          </div>
+          <div class="manual-anki-field-grid">
+            ${columns.map((column) => `
+              <label>
+                ${escapeHtml(column)}
+                <textarea data-manual-column="${escapeHtml(column)}" spellcheck="false">${escapeHtml(row.values[column] || "")}</textarea>
+              </label>
+            `).join("")}
+          </div>
+        </div>
+      `;
+      }).join("");
+      els.manualAnkiRows.innerHTML = `${pager}${rowsHtml}${pager}`;
+    }
+
+    function syncManualAnkiRowsFromDom() {
+      if (!els.manualAnkiRows) return;
+      const columns = manualAnkiColumns();
+      const rowMap = new Map(state.manualAnkiRows.map((row) => [row.id, row]));
+      els.manualAnkiRows.querySelectorAll("[data-manual-row]").forEach((rowEl) => {
+        const row = rowMap.get(rowEl.dataset.manualRow);
+        if (!row) return;
+        if (!row.values) row.values = {};
+        rowEl.querySelectorAll("[data-manual-column]").forEach((input) => {
+          row.values[input.dataset.manualColumn] = input.value || "";
+        });
+        columns.forEach((column) => { if (row.values[column] === undefined) row.values[column] = ""; });
+      });
+    }
+
+    function addManualAnkiRow() {
+      syncManualAnkiRowsFromDom();
+      const columns = manualAnkiColumns();
+      state.manualAnkiRows.push({
+        id: `manual-${Date.now().toString(36)}-${state.manualAnkiRows.length + 1}`,
+        values: Object.fromEntries(columns.map((column) => [column, ""]))
+      });
+      state.manualAnkiPage = Math.floor((state.manualAnkiRows.length - 1) / Math.max(1, Number(state.manualAnkiPageSize) || 20));
+      renderManualAnkiRows();
+    }
+
+    function createManualAnkiDeck() {
+      syncManualAnkiRowsFromDom();
+      const columns = manualAnkiColumns();
+      const rows = state.manualAnkiRows
+        .map((row, index) => normalizeAnkiRow({ id: `row-${index + 1}`, values: row.values }, index, columns))
+        .filter((row) => Object.values(row.values).some((value) => String(value || "").trim()));
+      if (!rows.length) {
+        toast("请先填写至少一张手动闪卡");
+        return;
+      }
+      const card = normalizeCard({
+        type: "anki",
+        title: `手动闪卡 ${rows.length} 条`,
+        columns,
+        rows,
+        frontFields: [columns[0]],
+        backFields: columns.slice(1).length ? columns.slice(1) : [columns[0]],
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+      if (!card) {
+        toast("生成失败，请检查字段设置");
+        return;
+      }
+      state.cards.unshift(card);
+      state.activeCardId = card.id;
+      saveCards();
+      loadCardIntoEditor(card);
+      switchPage("recite");
+      toast(`已生成手动闪卡：${rows.length} 条`);
+    }
+
+    function activeCard() {
+      return state.cards.find((card) => card.id === state.activeCardId);
+    }
+
+    function activeAnkiCard() {
+      const card = activeCard();
+      return card?.type === "anki" ? card : null;
+    }
+
+    function todayNumber() {
+      return Math.floor(Date.now() / 86400000);
+    }
+
+    function rowMarked(row) {
+      return Boolean(row?.markedFields?.length);
+    }
+
+    function prepareAnkiQueue(card) {
+      const today = todayNumber();
+      const due = [];
+      const fresh = [];
+      for (const row of card.rows) {
+        if (row.status === 0) fresh.push(row);
+        else if (row.status === 1 || row.nextDate <= today) due.push(row);
+      }
+      const queue = [...due, ...fresh];
+      const boosted = [];
+      queue.forEach((row, index) => {
+        boosted.push(row.id);
+        if (rowMarked(row) && index % 2 === 0) boosted.push(row.id);
+      });
+      state.ankiQueue = boosted;
+      if (!card.currentRowId || !card.rows.some((row) => row.id === card.currentRowId)) {
+        card.currentRowId = state.ankiQueue[0] || card.rows[0]?.id || "";
+      }
+      state.ankiHistory = [];
+    }
+
+    function currentAnkiRow(card = activeAnkiCard()) {
+      if (!card) return null;
+      return card.rows.find((row) => row.id === card.currentRowId) || card.rows[0] || null;
+    }
+
+    function setCurrentAnkiRow(card, rowId) {
+      if (!card) return;
+      card.currentRowId = rowId || "";
+      card.updatedAt = Date.now();
+    }
+
+    function ankiStatusText(row) {
+      if (!row || row.status === 0) return "未学";
+      if (row.status === 1) return "巩固中";
+      return "已学";
+    }
+
+    function renderAnkiFields(card, row, fields, maskedFields = new Set()) {
+      return fields.map((field) => {
+        const isMarked = row.markedFields.includes(field);
+        const explicitHidden = row.hiddenFields.includes(field);
+        const explicitRevealed = row.revealedFields.includes(field);
+        const masked = !explicitRevealed && (explicitHidden || maskedFields.has(field));
+        return `
+          <div class="anki-field">
+            <div class="anki-field-name">${escapeHtml(field)}</div>
+            <div class="anki-field-value ${masked ? "masked" : ""} ${isMarked ? "is-marked" : ""}" data-anki-row="${escapeHtml(row.id)}" data-anki-column="${escapeHtml(field)}">${escapeHtml(row.values[field] || "")}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAnkiReader() {
+      const card = activeAnkiCard();
+      document.body.dataset.cardKind = card ? "anki" : "text";
+      if (!card) {
+        renderReader();
+        return;
+      }
+      const row = currentAnkiRow(card);
+      syncAnkiTabs();
+      if (!row) {
+        els.reader.innerHTML = `<div class="empty-reader">这组 Anki 卡片没有可背诵记录。</div>`;
+        return;
+      }
+      if (state.ankiMode === "front" || state.ankiMode === "back") {
+        renderAnkiCardMode(card, row);
+      } else if (state.ankiMode === "important") {
+        renderAnkiImportant(card);
+      } else {
+        renderAnkiOverview(card);
+      }
+    }
+
+    function renderAnkiCardMode(card, row) {
+      const front = state.ankiMode === "front";
+      const fields = front ? card.frontFields : [...new Set([...card.frontFields, ...card.backFields])];
+      const total = card.rows.length || 1;
+      const learned = card.rows.filter((item) => item.status > 0).length;
+      const marked = row.markedFields.length ? "已标重点" : "未标重点";
+      els.reader.innerHTML = `
+        <div class="anki-reader">
+          <div class="anki-progress-row">
+            <span>进度 ${learned}/${total}</span>
+            <div class="anki-progress-bar" style="--anki-progress:${Math.round(learned / total * 100)}%"><div class="anki-progress-fill"></div></div>
+          </div>
+          <section class="anki-card-stage">
+            <div class="anki-card-kicker">
+              <span>${escapeHtml(card.title)} · ${escapeHtml(ankiStatusText(row))}</span>
+              <span>${escapeHtml(marked)}</span>
+            </div>
+            <div class="anki-card-fields">${renderAnkiFields(card, row, fields)}</div>
+            ${front ? `
+              <div class="anki-actions front">
+                <button class="btn" type="button" data-anki-action="show-back">显示反面</button>
+                <button class="btn secondary anki-undo-btn" type="button" data-anki-action="undo" ${state.ankiHistory.length ? "" : "disabled"}>回退</button>
+              </div>
+            ` : `
+              <div class="anki-actions">
+                <button class="btn danger" type="button" data-anki-score="1">重来</button>
+                <button class="btn secondary" type="button" data-anki-score="2">困难</button>
+                <button class="btn subtle" type="button" data-anki-score="3">良好</button>
+                <button class="btn" type="button" data-anki-score="4">简单</button>
+                <button class="btn secondary anki-undo-btn" type="button" data-anki-action="undo" ${state.ankiHistory.length ? "" : "disabled"}>回退</button>
+              </div>
+            `}
+          </section>
+        </div>
+      `;
+    }
+
+    function renderAnkiImportant(card) {
+      const markedRows = card.rows.filter(rowMarked);
+      if (!markedRows.length) {
+        els.reader.innerHTML = `<div class="empty-reader">还没有重点记录。长按字段内容可以加入重点。</div>`;
+        return;
+      }
+      els.reader.innerHTML = `
+        <div class="anki-reader">
+          <div class="anki-list">
+            ${markedRows.map((row) => {
+              const masked = new Set(row.markedFields);
+              return `
+                <section class="anki-row-card">
+                  <div class="anki-row-head"><span>${escapeHtml(ankiRowTitle(row, card.frontFields))}</span><span>${escapeHtml(ankiStatusText(row))}</span></div>
+                  <div class="anki-card-fields">${renderAnkiFields(card, row, card.columns, masked)}</div>
+                </section>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAnkiOverview(card) {
+      const selectedCount = state.ankiSelection.size;
+      els.reader.innerHTML = `
+        <div class="anki-reader">
+          <div class="anki-overview-tools">
+            <button class="btn secondary" type="button" data-anki-bulk="toggle-select">${state.ankiSelectionMode ? "完成" : "多选管理"}</button>
+            ${state.ankiSelectionMode ? `
+            <button class="btn secondary" type="button" data-anki-bulk="learned">设为已学</button>
+            <button class="btn secondary" type="button" data-anki-bulk="unlearned">设为未学</button>
+            <button class="btn secondary" type="button" data-anki-bulk="mark">标重点</button>
+            <button class="btn secondary" type="button" data-anki-bulk="unmark">取消重点</button>
+            <button class="btn subtle" type="button" data-anki-bulk="cancel-select">取消</button>
+            ` : ""}
+            <button class="btn danger" type="button" data-anki-bulk="clear">清除学习数据</button>
+            <button class="btn" type="button" data-anki-bulk="export">导出</button>
+            <button class="btn secondary" type="button" data-anki-bulk="import-learning">导入学习数据</button>
+          </div>
+          <div class="hint">${state.ankiSelectionMode ? `已选择 ${selectedCount} 条。勾选记录后可批量处理。` : "点击记录进入背诵；多选管理用于批量调整学习/重点状态。"}</div>
+          <div class="anki-list">
+            ${card.rows.map((row, index) => {
+              const selected = state.ankiSelection.has(row.id);
+              const marked = rowMarked(row);
+              return `
+                <div class="anki-overview-row ${selected ? "is-selected" : ""}" data-anki-overview-row="${escapeHtml(row.id)}">
+                  <input type="checkbox" ${selected ? "checked" : ""} ${state.ankiSelectionMode ? "" : "hidden"} aria-label="选择第 ${index + 1} 条">
+                  <div>${escapeHtml(ankiRowTitle(row, card.frontFields))}</div>
+                  <span class="anki-status-pill ${row.status === 2 ? "learned" : row.status === 1 ? "learning" : ""}">${escapeHtml(ankiStatusText(row))}</span>
+                  <span class="anki-status-pill ${marked ? "marked" : ""}">${marked ? "重点" : "未标记"}</span>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function syncAnkiTabs() {
+      const labels = { front: "正面", back: "反面", important: "重点", overview: "总览" };
+      const modes = Object.keys(labels);
+      els.modeTabs.innerHTML = modes.map((mode) => `<button class="${state.ankiMode === mode ? "active" : ""}" data-mode="${mode}" type="button">${labels[mode]}</button>`).join("");
+      els.modeTabs.style.setProperty("--active-index", Math.max(0, modes.indexOf(state.ankiMode)));
+    }
+
+    function syncTextTabs() {
+      const tabs = [
+        ["none", "原文"],
+        ["level1", "一层"],
+        ["level2", "二层"],
+        ["important", "重点"],
+        ["all", "全遮"]
+      ];
+      els.modeTabs.innerHTML = tabs.map(([mode, label]) => `<button class="${state.mode === mode ? "active" : ""}" data-mode="${mode}" type="button">${label}</button>`).join("");
+      els.modeTabs.style.setProperty("--active-index", Math.max(0, tabs.findIndex(([mode]) => mode === state.mode)));
+    }
+
+    function setAnkiMode(mode, shouldRender = true) {
+      state.ankiMode = ["front", "back", "important", "overview"].includes(mode) ? mode : "front";
+      if (shouldRender) renderAnkiReader();
+    }
+
+    function scoreAnkiRow(score) {
+      const card = activeAnkiCard();
+      const row = currentAnkiRow(card);
+      if (!card || !row) return;
+      const today = todayNumber();
+      state.ankiHistory.push({
+        rowId: row.id,
+        oldRow: JSON.parse(JSON.stringify(row)),
+        oldQueue: [...state.ankiQueue],
+        oldCurrentRowId: card.currentRowId,
+        oldMode: state.ankiMode
+      });
+      const queueIndex = state.ankiQueue.indexOf(row.id);
+      if (queueIndex > -1) state.ankiQueue.splice(queueIndex, 1);
+      if (score === 1) {
+        row.ef = Math.max(1.3, row.ef - 0.2);
+        row.interval = 1;
+        row.status = 1;
+        state.ankiQueue.splice(Math.min(1, state.ankiQueue.length), 0, row.id);
+      } else if (score === 2) {
+        row.ef = Math.max(1.3, row.ef - 0.15);
+        row.interval = Math.max(1, Math.floor(row.interval * 1.2));
+        row.status = 1;
+        state.ankiQueue.splice(Math.max(1, Math.floor(state.ankiQueue.length * 0.3)), 0, row.id);
+      } else if (score === 3) {
+        row.interval = Math.max(1, Math.floor(row.interval * row.ef));
+        row.nextDate = today + row.interval;
+        row.status = 2;
+      } else if (score === 4) {
+        row.ef += 0.15;
+        row.interval = Math.max(1, Math.floor(row.interval * row.ef * 1.3));
+        row.nextDate = today + row.interval;
+        row.status = 2;
+      }
+      row.studiedAt = Date.now();
+      const nextId = state.ankiQueue.find((id) => id !== row.id) || card.rows.find((item) => item.id !== row.id)?.id || row.id;
+      setCurrentAnkiRow(card, nextId);
+      state.ankiMode = "front";
+      saveCards();
+      renderAnkiReader();
+    }
+
+    function undoAnkiScore() {
+      const card = activeAnkiCard();
+      const last = state.ankiHistory.pop();
+      if (!card || !last) {
+        toast("没有可回退的记录");
+        return;
+      }
+      const index = card.rows.findIndex((row) => row.id === last.rowId);
+      if (index >= 0) card.rows[index] = normalizeAnkiRow(last.oldRow, index, card.columns);
+      state.ankiQueue = [...last.oldQueue];
+      card.currentRowId = last.oldCurrentRowId;
+      card.updatedAt = Date.now();
+      state.ankiMode = "back";
+      saveCards();
+      renderAnkiReader();
+      toast("已回退到上一张");
+    }
+
+    function toggleAnkiFieldImportant(rowId, column, importantValue) {
+      const card = activeAnkiCard();
+      const row = card?.rows.find((item) => item.id === rowId);
+      if (!row || !card.columns.includes(column)) return;
+      const set = new Set(row.markedFields);
+      const nextValue = typeof importantValue === "boolean" ? importantValue : !set.has(column);
+      if (nextValue) set.add(column);
+      else set.delete(column);
+      row.markedFields = [...set];
+      card.updatedAt = Date.now();
+      saveCards();
+      renderAnkiReader();
+    }
+
+    function toggleAnkiFieldMask(rowId, column) {
+      const card = activeAnkiCard();
+      const row = card?.rows.find((item) => item.id === rowId);
+      if (!row || !card.columns.includes(column)) return;
+      const hidden = new Set(row.hiddenFields);
+      const revealed = new Set(row.revealedFields);
+      const defaultMasked = state.ankiMode === "important" && row.markedFields.includes(column);
+      const currentlyMasked = !revealed.has(column) && (hidden.has(column) || defaultMasked);
+      if (currentlyMasked) {
+        revealed.add(column);
+        hidden.delete(column);
+      } else {
+        hidden.add(column);
+        revealed.delete(column);
+      }
+      row.hiddenFields = [...hidden];
+      row.revealedFields = [...revealed];
+      card.updatedAt = Date.now();
+      saveCards();
+      renderAnkiReader();
+    }
+
+    function applyAnkiBulk(action) {
+      const card = activeAnkiCard();
+      if (!card) return;
+      if (action === "toggle-select") {
+        state.ankiSelectionMode = !state.ankiSelectionMode;
+        if (!state.ankiSelectionMode) state.ankiSelection.clear();
+        renderAnkiReader();
+        return;
+      }
+      if (action === "cancel-select") {
+        state.ankiSelectionMode = false;
+        state.ankiSelection.clear();
+        renderAnkiReader();
+        return;
+      }
+      const selectedRows = card.rows.filter((row) => state.ankiSelection.has(row.id));
+      const needsSelection = ["learned", "unlearned", "mark", "unmark"].includes(action);
+      if (needsSelection && !selectedRows.length) {
+        toast("请先选择记录");
+        return;
+      }
+      const targetRows = selectedRows.length ? selectedRows : card.rows;
+      if (action === "learned") {
+        targetRows.forEach((row) => { row.status = 2; row.interval = Math.max(1, row.interval || 1); row.nextDate = todayNumber() + row.interval; row.studiedAt = Date.now(); });
+      } else if (action === "unlearned") {
+        targetRows.forEach((row) => { row.status = 0; row.interval = 0; row.nextDate = 0; row.studiedAt = 0; });
+      } else if (action === "mark") {
+        targetRows.forEach((row) => { row.markedFields = [...new Set([...row.markedFields, ...card.backFields])]; });
+      } else if (action === "unmark") {
+        targetRows.forEach((row) => { row.markedFields = []; });
+      } else if (action === "clear") {
+        if (!window.confirm("确定清除这组 Anki 卡片的所有学习状态吗？重点标记会保留。")) return;
+        card.rows.forEach((row) => { row.status = 0; row.interval = 0; row.nextDate = 0; row.studiedAt = 0; row.ef = 2.5; });
+      } else if (action === "export") {
+        exportAnkiDeckParts(card);
+        return;
+      } else if (action === "import-learning") {
+        importAnkiLearningFile(card);
+        return;
+      }
+      card.updatedAt = Date.now();
+      prepareAnkiQueue(card);
+      if (needsSelection) {
+        state.ankiSelectionMode = false;
+        state.ankiSelection.clear();
+      }
+      saveCards();
+      renderAnkiReader();
+      toast("Anki 状态已更新");
+    }
+
+    function exportAnkiDeckParts(card) {
+      const choice = window.prompt("导出内容：1=内容列表，2=学习记录，3=都导出", "3");
+      if (!choice) return;
+      const date = new Date().toISOString().slice(0, 10);
+      if (choice === "1" || choice === "3") {
+        downloadJson({
+          type: "recitecloze-anki-content",
+          version: 1,
+          title: card.title,
+          columns: card.columns,
+          frontFields: card.frontFields,
+          backFields: card.backFields,
+          rows: card.rows.map((row) => ({ id: row.id, values: row.values }))
+        }, `${card.title || "anki"}-content-${date}.json`);
+      }
+      if (choice === "2" || choice === "3") {
+        downloadJson({
+          type: "recitecloze-anki-learning",
+          version: 1,
+          title: card.title,
+          records: card.rows.map((row) => ({
+            id: row.id,
+            ef: row.ef,
+            interval: row.interval,
+            nextDate: row.nextDate,
+            status: row.status,
+            studiedAt: row.studiedAt,
+            markedFields: row.markedFields
+          }))
+        }, `${card.title || "anki"}-learning-${date}.json`);
+      }
+      toast("Anki 导出已开始");
+    }
+
+    function downloadJson(payload, filename) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename.replace(/[\\/:*?"<>|]+/g, "_");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importAnkiLearningFile(card) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json,.json";
+      input.addEventListener("change", async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        try {
+          const parsed = JSON.parse(await file.text());
+          const records = Array.isArray(parsed.records) ? parsed.records : [];
+          const byId = new Map(records.map((record) => [record.id, record]));
+          let count = 0;
+          card.rows.forEach((row) => {
+            const record = byId.get(row.id);
+            if (!record) return;
+            row.ef = Math.max(1.3, Number(record.ef) || 2.5);
+            row.interval = Math.max(0, Number(record.interval) || 0);
+            row.nextDate = Math.max(0, Number(record.nextDate) || 0);
+            row.status = [0, 1, 2].includes(Number(record.status)) ? Number(record.status) : row.status;
+            row.studiedAt = Number(record.studiedAt) || 0;
+            row.markedFields = Array.isArray(record.markedFields) ? record.markedFields.filter((field) => card.columns.includes(field)) : row.markedFields;
+            count += 1;
+          });
+          card.updatedAt = Date.now();
+          prepareAnkiQueue(card);
+          saveCards();
+          renderAnkiReader();
+          toast(`已导入 ${count} 条学习记录`);
+        } catch {
+          toast("学习数据导入失败");
+        }
+      }, { once: true });
+      input.click();
     }
 
     function downloadCardsFile(cards, filenamePrefix = "beisong-cards") {
@@ -3624,13 +5332,36 @@
       URL.revokeObjectURL(url);
     }
 
+    function safeFilenamePart(value, fallback = "card") {
+      const text = String(value || fallback).trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, "-");
+      return text.slice(0, 48) || fallback;
+    }
+
     function exportCardsFile() {
-      if (!state.cards.length) {
-        toast("没有可导出的缓存");
+      const visibleCards = getVisibleCards();
+      if (!visibleCards.length) {
+        toast("当前文件夹没有可导出的卡片");
         return;
       }
-      downloadCardsFile(state.cards);
-      toast("缓存文件已导出");
+      state.selectedCardIds.clear();
+      state.cardSelectionMode = true;
+      renderCards();
+      toast("请选择要导出的卡片，然后点击上方“导出”");
+    }
+
+    function exportSelectedCardsFile() {
+      const visibleIds = new Set(getVisibleCards().map((card) => card.id));
+      const cards = getSelectedCards().filter((card) => visibleIds.has(card.id));
+      if (!cards.length) {
+        toast("请先选择要导出的卡片");
+        return;
+      }
+      cards.forEach((card, index) => {
+        const title = card.title || cardExcerpt(card.sourceText, card.markedText) || card.id;
+        downloadCardsFile([card], `beisong-card-${index + 1}-${safeFilenamePart(title)}`);
+      });
+      setCardSelectionMode(false);
+      toast(`已逐个导出 ${cards.length} 张卡片`);
     }
 
     function exportSingleCardFile(card) {
@@ -3844,7 +5575,12 @@
       els.cardsView.classList.toggle("active", page === "cards");
       els.configView.classList.toggle("active", page === "config");
       els.reciteView.classList.toggle("active", page === "recite");
-      if (page === "recite" && !state.units.length) {
+      const ankiCard = activeAnkiCard();
+      document.body.dataset.cardKind = page === "recite" && ankiCard ? "anki" : "text";
+      if (page === "recite" && ankiCard) {
+        if (!state.ankiQueue.length) prepareAnkiQueue(ankiCard);
+        renderAnkiReader();
+      } else if (page === "recite" && !state.units.length) {
         renderReader();
       }
       if (page === "recite" && state.activeCardId) {
@@ -4001,6 +5737,10 @@
     }
 
     function renderReader() {
+      if (!activeAnkiCard()) {
+        document.body.dataset.cardKind = "text";
+        syncTextTabs();
+      }
       if (!state.units.length) {
         els.reader.innerHTML = `<div class="empty-reader">还没有可背诵内容。请回到配置页输入语料并生成或解析标注。</div>`;
         return;
@@ -4798,14 +6538,25 @@
     });
 
     els.folderStrip.addEventListener("click", (event) => {
+      const back = event.target.closest("[data-folder-back]");
+      if (back) {
+        state.activeFolder = "__root";
+        setCardSelectionMode(false);
+        return;
+      }
       const chip = event.target.closest(".folder-chip");
       if (!chip) return;
-      state.activeFolder = chip.dataset.folderValue || "";
-      if (state.activeFolder === "all") state.activeFolder = "all";
+      state.activeFolder = chip.dataset.folderValue || "__root";
       renderCards();
     });
 
     els.cardsList.addEventListener("click", (event) => {
+      const folderOpen = event.target.closest("[data-folder-open]");
+      if (folderOpen) {
+        state.activeFolder = folderOpen.dataset.folderOpen || "all";
+        setCardSelectionMode(false);
+        return;
+      }
       const actionButton = event.target.closest("button[data-card-action]");
       const cardElement = event.target.closest(".cache-card");
       const card = state.cards.find((item) => item.id === cardElement?.dataset.cardId);
@@ -4881,6 +6632,7 @@
     });
     els.toggleSelectCards.addEventListener("click", () => setCardSelectionMode(!state.cardSelectionMode));
     els.cancelSelectCards.addEventListener("click", () => setCardSelectionMode(false));
+    els.exportSelectedCards.addEventListener("click", exportSelectedCardsFile);
     els.moveSelectedCards.addEventListener("click", moveSelectedCardsToFolder);
     els.deleteSelectedCards.addEventListener("click", deleteSelectedCards);
     els.closeCardSheet.addEventListener("click", closeCardManager);
@@ -4890,20 +6642,18 @@
     els.moveSingleCard.addEventListener("click", moveManagingCard);
     els.exportSingleCard.addEventListener("click", () => exportSingleCardFile(getManagingCard()));
     els.deleteSingleCard.addEventListener("click", deleteManagingCard);
-    els.clearCards.addEventListener("click", () => {
-      if (!state.cards.length) {
-        toast("没有可清除的缓存");
-        return;
-      }
-      if (!window.confirm("确定清除所有缓存卡片吗？")) return;
-      state.cards = [];
-      state.activeCardId = "";
-      state.activeFolder = "all";
-      state.selectedCardIds.clear();
-      state.cardSelectionMode = false;
-      saveCards();
-      toast("缓存已清除");
+    els.createFolder.addEventListener("click", () => createFolderFromPrompt(false));
+    els.closeFolderSheet.addEventListener("click", closeFolderPicker);
+    els.folderSheet.addEventListener("click", (event) => {
+      if (event.target === els.folderSheet) closeFolderPicker();
     });
+    els.folderPickList.addEventListener("click", (event) => {
+      const option = event.target.closest("[data-folder-pick]");
+      if (!option) return;
+      applyFolderToPickerTarget(option.getAttribute("data-folder-pick") || "");
+    });
+    els.folderCreateFromSheet.addEventListener("click", () => createFolderFromPrompt(true));
+    els.clearCards.addEventListener("click", clearCardsOrDeleteActiveFolder);
 
     els.themeToggle.addEventListener("click", toggleTheme);
     els.apiKey.addEventListener("input", saveSettings);
@@ -4957,7 +6707,8 @@
     els.modeTabs.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-mode]");
       if (!button) return;
-      setMode(button.dataset.mode);
+      if (activeAnkiCard()) setAnkiMode(button.dataset.mode);
+      else setMode(button.dataset.mode);
     });
 
     els.revealAll.addEventListener("click", () => {
@@ -4970,11 +6721,99 @@
 
     els.resetMode.addEventListener("click", applyMode);
 
+    els.ankiChooseCsv?.addEventListener("click", () => els.ankiCsvFile.click());
+    els.ankiCsvFile?.addEventListener("change", () => loadAnkiCsvFile(els.ankiCsvFile.files[0]));
+    els.ankiCreateDeck?.addEventListener("click", createAnkiDeckFromImport);
+    els.manualAnkiApplyFields?.addEventListener("click", () => {
+      syncManualAnkiRowsFromDom();
+      renderManualAnkiRows();
+      toast("手动闪卡字段已应用");
+    });
+    els.manualAnkiAddRow?.addEventListener("click", addManualAnkiRow);
+    els.manualAnkiCreateDeck?.addEventListener("click", createManualAnkiDeck);
+    els.manualAnkiRows?.addEventListener("input", syncManualAnkiRowsFromDom);
+    els.manualAnkiRows?.addEventListener("click", (event) => {
+      const pageButton = event.target.closest("[data-manual-page]");
+      if (pageButton) {
+        syncManualAnkiRowsFromDom();
+        const direction = pageButton.dataset.manualPage === "next" ? 1 : -1;
+        state.manualAnkiPage += direction;
+        renderManualAnkiRows();
+        return;
+      }
+      const button = event.target.closest("[data-manual-action]");
+      const rowEl = event.target.closest("[data-manual-row]");
+      if (!button || !rowEl) return;
+      if (button.dataset.manualAction === "delete") {
+        syncManualAnkiRowsFromDom();
+        state.manualAnkiRows = state.manualAnkiRows.filter((row) => row.id !== rowEl.dataset.manualRow);
+        const pageSize = Math.max(1, Number(state.manualAnkiPageSize) || 20);
+        const maxPage = Math.max(0, Math.ceil(state.manualAnkiRows.length / pageSize) - 1);
+        state.manualAnkiPage = Math.min(state.manualAnkiPage, maxPage);
+        renderManualAnkiRows();
+      }
+    });
+
+    els.reader.addEventListener("click", (event) => {
+      const card = activeAnkiCard();
+      if (!card) return;
+      const action = event.target.closest("[data-anki-action]")?.dataset.ankiAction;
+      if (action === "show-back") {
+        setAnkiMode("back");
+        return;
+      }
+      if (action === "undo") {
+        undoAnkiScore();
+        return;
+      }
+      const scoreButton = event.target.closest("[data-anki-score]");
+      if (scoreButton) {
+        scoreAnkiRow(Number(scoreButton.dataset.ankiScore));
+        return;
+      }
+      const bulkButton = event.target.closest("[data-anki-bulk]");
+      if (bulkButton) {
+        applyAnkiBulk(bulkButton.dataset.ankiBulk);
+        return;
+      }
+      const overviewRow = event.target.closest("[data-anki-overview-row]");
+      if (overviewRow) {
+        const rowId = overviewRow.dataset.ankiOverviewRow;
+        if (state.ankiSelectionMode || event.target.matches("input")) {
+          if (state.ankiSelection.has(rowId)) state.ankiSelection.delete(rowId);
+          else state.ankiSelection.add(rowId);
+          renderAnkiReader();
+          return;
+        }
+        setCurrentAnkiRow(card, rowId);
+        state.ankiMode = "front";
+        renderAnkiReader();
+      }
+    });
+
     els.reader.addEventListener("contextmenu", (event) => {
-      if (event.target.closest(".unit[data-id]")) event.preventDefault();
+      if (event.target.closest(".unit[data-id], .anki-field-value[data-anki-row]")) event.preventDefault();
     });
 
     els.reader.addEventListener("pointerdown", (event) => {
+      if (activeAnkiCard()) {
+        const fieldElement = event.target.closest(".anki-field-value[data-anki-row]");
+        if (!fieldElement) return;
+        state.ankiLongPressFired = false;
+        state.ankiPointerStart = { x: event.clientX, y: event.clientY, rowId: fieldElement.dataset.ankiRow, column: fieldElement.dataset.ankiColumn };
+        window.clearTimeout(state.ankiLongPressTimer);
+        state.ankiLongPressTimer = window.setTimeout(() => {
+          state.ankiLongPressFired = true;
+          toggleAnkiFieldImportant(fieldElement.dataset.ankiRow, fieldElement.dataset.ankiColumn);
+          toast("已切换重点标记");
+        }, 450);
+        if (event.pointerType !== "touch") {
+          event.preventDefault();
+          clearSelection();
+          els.reader.setPointerCapture(event.pointerId);
+        }
+        return;
+      }
       const unitElement = event.target.closest(".unit[data-id]");
       if (!unitElement) return;
       const unit = state.units[Number(unitElement.dataset.id)];
@@ -5005,6 +6844,17 @@
     });
 
     els.reader.addEventListener("pointermove", (event) => {
+      if (activeAnkiCard()) {
+        if (!state.ankiPointerStart) return;
+        const dx = Math.abs(event.clientX - state.ankiPointerStart.x);
+        const dy = Math.abs(event.clientY - state.ankiPointerStart.y);
+        if (dx > 10 || dy > 10) {
+          window.clearTimeout(state.ankiLongPressTimer);
+          state.ankiLongPressTimer = 0;
+          state.ankiPointerStart = null;
+        }
+        return;
+      }
       if (!state.pointerStart && !state.dragging && !state.markDragging) return;
       if (state.scrollingReader) return;
       const distance = state.pointerStart
@@ -5044,6 +6894,19 @@
     });
 
     els.reader.addEventListener("pointerup", (event) => {
+      if (activeAnkiCard()) {
+        if (state.ankiLongPressTimer) {
+          window.clearTimeout(state.ankiLongPressTimer);
+          state.ankiLongPressTimer = 0;
+        }
+        if (!state.ankiLongPressFired && state.ankiPointerStart) {
+          toggleAnkiFieldMask(state.ankiPointerStart.rowId, state.ankiPointerStart.column);
+        }
+        state.ankiPointerStart = null;
+        state.ankiLongPressFired = false;
+        clearSelection();
+        return;
+      }
       if (state.scrollingReader) {
         finishPointerGesture();
         return;
@@ -5056,6 +6919,12 @@
     });
 
     els.reader.addEventListener("pointercancel", () => {
+      if (activeAnkiCard()) {
+        window.clearTimeout(state.ankiLongPressTimer);
+        state.ankiPointerStart = null;
+        state.ankiLongPressFired = false;
+        return;
+      }
       finishPointerGesture();
     });
 
@@ -5076,7 +6945,9 @@
     updateTopSwitchFloatState();
 
     loadSettings();
+    loadFolders();
     loadCards();
+    renderManualAnkiRows();
     renderReader();
     syncReciteHelpVisibility();
     switchPage("config");
